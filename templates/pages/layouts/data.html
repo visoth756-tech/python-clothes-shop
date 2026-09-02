@@ -1,0 +1,25 @@
+<script>
+  window.ADMIN_URLS = {
+    dashboard: "{{ url_for('admin.dashboard') }}",
+    categories: "{{ url_for('admin.categories') }}",
+    products: "{{ url_for('admin.products') }}",
+    orders: "{{ url_for('admin.orders') }}",
+    payments: "{{ url_for('admin.payments') }}",
+    users: "{{ url_for('admin.users') }}",
+  };
+
+  window.CURRENT_USER = {
+    username: "{{ session.get('username', '') }}",
+    role: "{{ session.get('role', '') }}",
+    image: "{{ session.get('image', '') }}",
+  };
+
+  window.LOGOUT_URL = "{{ url_for('auth.logout') }}";
+
+  window.DEFAULT_AVATAR_URL = "{{ url_for('static', filename='img/default-avatar.png') }}";
+  window.USER_IMAGE_BASE = "{{ url_for('static', filename='uploads/users/') }}";
+  window.USER_IMAGE_THUMB_BASE = "{{ url_for('static', filename='uploads/users/') }}";
+  window.PRODUCT_IMAGE_BASE = "{{ url_for('static', filename='uploads/products/') }}";
+  window.PRODUCT_IMAGE_THUMB_BASE = "{{ url_for('static', filename='uploads/products/') }}";
+
+</script>

@@ -1,0 +1,176 @@
+import {listCategories, createCategory, updateCategory, deleteCategory} from "../api/category.js";
+import {getProducts} from "../api/product.js";
+import {formatCapitalLetter, formatDate} from "../shared/format.js";
+import {renderHeader} from "../component/header.js";
+import {renderSidebar} from "../component/sidebar.js";
+
+let categories = [];
+let productList = [];
+let editingCategoryId = null;
+
+const modal = document.getElementById('categoryModal');
+const form = document.getElementById('categoryForm');
+const title = document.getElementById('popupTitle');
+const nameInput = document.getElementById('categoryName');
+const categoryList = document.getElementById('categoryList');
+const addCategoryBtn = document.getElementById('addCategoryBtn');
+const closeCategoryBtn = document.getElementById('closeCategoryBtn');
+
+function openCategoryModal(id = null) {
+  editingCategoryId = id;
+
+  if (id !== null) {
+    const category = categories.find(c => String(c.id) === String(id));
+
+    if (!category) {
+      console.error('Category not found:', id);
+      return;
+    }
+
+    if (title) title.textContent = 'Edit Category';
+    if (nameInput) nameInput.value = category.name;
+  } else {
+    if (title) title.textContent = 'Add Category';
+    if (form) form.reset();
+  }
+
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeCategoryModal() {
+  if (modal) modal.classList.add('hidden');
+  if (form) form.reset();
+  editingCategoryId = null;
+}
+
+function updateCategoryCount(count) {
+  const countEl = document.getElementById("categoryCount");
+  const pluralEl = document.getElementById("recordPlural");
+
+  if (countEl) countEl.textContent = count;
+  if (pluralEl) pluralEl.textContent = count === 1 ? '' : 's';
+}
+
+function countProductsByCategory(categoryId) {
+  return productList.filter(product => String(product.categoryId) === String(categoryId)).length;
+}
+
+function renderTable(list) {
+  updateCategoryCount(list.length);
+
+  if (!categoryList) return;
+
+  if (list.length === 0) {
+    categoryList.innerHTML = `
+      <div class="px-5 py-8 text-center text-stone-400 text-sm">
+        No categories found. Click "Add Category" to create one.
+      </div>
+    `;
+    return;
+  }
+
+  console.log(list)
+
+  categoryList.innerHTML = list.map(category => `
+    <div class="grid grid-cols-[0.5fr_1.5fr_1fr_1fr_1fr] border-b border-stone-100 hover:bg-stone-50 items-center">
+      <div class="px-5 py-4 font-medium">
+        ${(category.name)}
+      </div>
+
+      <div class="px-5 py-4 text-stone-500">
+        ${countProductsByCategory(category.id)}
+      </div>
+
+      <div class="px-5 py-4 text-stone-500">
+        ${formatDate(category.created_at)}
+      </div>
+
+      <div class="px-5 py-4 text-stone-500">
+        ${formatDate(category.updated_at)}
+      </div>
+
+      <div class="px-5 py-4 text-right">
+        <button
+          type="button"
+          onclick="openCategoryModal('${category.id}')"
+          class="text-stone-400 hover:text-blue-600 p-1.5 rounded hover:bg-stone-100 cursor-pointer">
+          <i class="fa-solid fa-pen"></i>
+        </button>
+
+        <button
+          type="button"
+          onclick="handleDeleteCategory('${category.id}')"
+          class="text-stone-400 hover:text-red-600 p-1.5 rounded hover:bg-red-50 cursor-pointer ml-1">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function saveCategory() {
+  const name = nameInput ? nameInput.value.trim() : '';
+
+  if (!name) return;
+
+  try {
+    if (editingCategoryId !== null) {
+      await updateCategory(editingCategoryId, name);
+    } else {
+      await createCategory(name);
+    }
+
+    closeCategoryModal();
+    categories = await listCategories();
+    renderTable(categories);
+  } catch (error) {
+    console.error('Error saving category:', error);
+    alert(error.message || 'Failed to save category');
+  }
+}
+
+async function handleDeleteCategory(id) {
+  if (!confirm('Are you sure you want to delete this category?')) {
+    return;
+  }
+
+  try {
+    await deleteCategory(id);
+    categories = await listCategories();
+    renderTable(categories);
+  } catch (error) {
+    console.error('Error deleting category:', error);
+    alert(error.message || 'Failed to delete category');
+  }
+}
+
+if (form) {
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    saveCategory();
+  });
+}
+
+if (addCategoryBtn) {
+  addCategoryBtn.addEventListener('click', () => openCategoryModal());
+}
+
+if (closeCategoryBtn) {
+  closeCategoryBtn.addEventListener('click', () => closeCategoryModal());
+}
+
+window.openCategoryModal = openCategoryModal;
+window.closeCategoryModal = closeCategoryModal;
+window.handleDeleteCategory = handleDeleteCategory;
+window.deleteCategory = handleDeleteCategory;
+
+async function initCategories() {
+  categories = await listCategories();
+  // productList = await getProducts();
+
+  renderTable(categories);
+}
+
+renderSidebar();
+renderHeader('categories');
+initCategories();

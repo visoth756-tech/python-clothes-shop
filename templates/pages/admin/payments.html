@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	{% include "pages/layouts/head.html" %}
+</head>
+
+<body class="bg-paper text-ink">
+
+<div class="flex h-screen overflow-hidden">
+
+	<!-- SIDEBAR -->
+	<aside id="sidebarNav"></aside>
+
+	<!-- MAIN -->
+	<div class="flex-1 flex flex-col overflow-hidden">
+
+		<!-- TOPBAR -->
+		<header id="pageHeader"></header>
+
+		<!-- CONTENT -->
+		<main class="flex-1 overflow-y-auto p-7" id="table">
+			<!-- injected by JS -->
+		</main>
+	</div>
+</div>
+
+{% include "pages/layouts/data.html" %}}
+
+<script type="module" src="../../../static/js/pages/payment.js"></script>
+
+</body>
+
+</html>

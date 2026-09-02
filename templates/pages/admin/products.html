@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	{% include "pages/layouts/head.html" %}
+</head>
+
+<body class="bg-paper text-ink">
+
+<div class="flex h-screen overflow-hidden">
+
+	<!-- SIDEBAR -->
+	<aside id="sidebarNav"></aside>
+
+	<!-- MAIN -->
+	<div class="flex-1 flex flex-col overflow-hidden">
+
+		<!-- TOPBAR -->
+		<header id="pageHeader"></header>
+
+		<!-- CONTENT -->
+		<main class="flex-1 overflow-y-auto p-7" id="table">
+			<!-- injected by JS -->
+		</main>
+	</div>
+</div>
+
+<!-- MODAL: Add/Edit -->
+<div id="productModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center">
+	<div class="bg-white rounded-lg p-6 w-full max-w-md">
+
+		<h2 id="popupTitle" class="text-lg font-semibold mb-4">Add</h2>
+
+		<form id="productForm">
+
+			<!-- Image -->
+			<div>
+				<label class="block text-sm font-medium text-stone-700 mb-1">
+					Product Image
+				</label>
+
+				<div class="relative w-28 h-28">
+					<img
+						id="imagePreview"
+						src=""
+						class="hidden w-28 h-28 object-cover rounded-md border border-stone-300"
+					>
+
+					<label
+						for="inputImage"
+						id="imagePlaceholder"
+						class="w-28 h-28 border-2 border-dashed border-stone-300 rounded-md flex flex-col items-center justify-center cursor-pointer hover:bg-stone-50"
+					>
+						<i class="fa-solid fa-image text-2xl text-stone-400"></i>
+						<span class="text-xs text-stone-500 mt-1">Choose image</span>
+					</label>
+
+					<input
+						id="inputImage"
+						name="image"
+						type="file"
+						accept="image/*"
+						class="hidden"
+					>
+
+					<!-- Replace image -->
+					<label
+						for="inputImage"
+						id="replaceImage"
+						class="hidden absolute bottom-1 right-1 w-8 h-8 bg-black text-white rounded-full flex items-center justify-center cursor-pointer hover:bg-stone-800"
+						title="Replace image"
+					>
+						<i class="fa-solid fa-pen text-xs"></i>
+					</label>
+				</div>
+			</div>
+
+			<!-- Product Name -->
+			<div class="mt-4">
+				<label for="productName" class="block text-sm font-medium text-stone-700 mb-1">
+					Name *
+				</label>
+
+				<input id="productName" name="name" type="text" required
+							 class="w-full border border-stone-300 rounded-md px-3 py-2 text-sm">
+			</div>
+
+			<!-- Price + Category -->
+			<div class="flex gap-3 mt-4">
+
+				<div class="flex-1">
+					<label for="productPrice" class="block text-sm font-medium text-stone-700 mb-1">
+						Price *
+					</label>
+
+					<input id="productPrice" name="price" type="number" min="0" step="0.01" required
+								 class="w-full border border-stone-300 rounded-md px-3 py-2 text-sm">
+				</div>
+
+				<div class="w-34">
+					<label for="productCategory" type="number" class="block text-sm font-medium text-stone-700 mb-1">
+						Category *
+					</label>
+
+					<select id="productCategory" name="categoryId" required
+									class="w-full border border-stone-300 rounded-md px-3 py-2 text-sm bg-white">
+						<option value="">Select</option>
+					</select>
+				</div>
+
+			</div>
+
+			<!-- Quantity -->
+			<div class="mt-4">
+				<label for="productQty" class="block text-sm font-medium text-stone-700 mb-1">
+					Quantity (Qty) *
+				</label>
+
+				<input id="productQty" name="qty" type="number" value="0" min="0" required
+							 placeholder="0"
+							 class="w-full border border-stone-300 rounded-md px-3 py-2 text-sm">
+			</div>
+
+			<!-- Buttons -->
+			<div class="flex justify-end gap-2 mt-5">
+
+				<button type="button" onclick="closeModal()"
+								class="px-4 py-2 border rounded-md cursor-pointer hover:bg-stone-50">
+					Cancel
+				</button>
+
+				<button type="submit" class="px-4 py-2 bg-black text-white rounded-md cursor-pointer hover:bg-stone-800">
+					Save
+				</button>
+
+			</div>
+
+		</form>
+	</div>
+</div>
+
+{% include "pages/layouts/data.html" %}}
+
+<script type="module" src="../../../static/js/pages/product.js"></script>
+</body>
+
+</html>
