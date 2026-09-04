@@ -76,7 +76,7 @@ def _validate_category(category_id):
 @admin_required
 def products():
 	return render_template(
-		"pages/admin/products.html",
+		"admin/products.html",
 		title="Products"
 	)
 

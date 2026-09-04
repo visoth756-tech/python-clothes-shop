@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-	{% include "pages/layouts/head.html" %}
+	{% include "layouts/head.html" %}
 </head>
 
 <body class="bg-paper text-ink">
@@ -25,9 +25,9 @@
 	</div>
 </div>
 
-{% include "pages/layouts/data.html" %}}
-
-<script type="module" src="../../../static/js/pages/order.js"></script>
+{% include "layouts/data.html" %}
+ 
+<script type="module" src="{{ url_for('static', filename='js/admin/payment.js') }}"></script>
 
 </body>
 

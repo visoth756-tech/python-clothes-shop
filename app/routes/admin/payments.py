@@ -7,6 +7,6 @@ from ..auth.decorators import admin_required
 @admin_required
 def payments():
 	return render_template(
-		"pages/admin/payments.html",
+		"admin/payments.html",
 		title="Payments"
 	)

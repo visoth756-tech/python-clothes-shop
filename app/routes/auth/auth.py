@@ -18,7 +18,7 @@ def login():
 		
 		if not user or not check_password_hash(user.password, password):
 			flash("Invalid username or password.")
-			return render_template("pages/auth/login.html", title="Login")
+			return render_template("auth/login.html", title="Login")
 		
 		session.clear()
 		session.permanent = bool(request.form.get("remember"))
@@ -36,7 +36,7 @@ def login():
 			return redirect(url_for("admin.dashboard"))
 		return redirect(url_for("home.index"))
 	
-	return render_template("pages/auth/login.html", title="Login")
+	return render_template("auth/login.html", title="Login")
 
 
 @auth_bp.route("/register", methods=["GET", "POST"])
@@ -48,17 +48,17 @@ def register():
 		
 		if not username:
 			flash("Username is required.")
-			return render_template("pages/auth/register.html", title="Register")
+			return render_template("auth/register.html", title="Register")
 		if not password:
 			flash("Password is required.")
-			return render_template("pages/auth/register.html", title="Register")
+			return render_template("auth/register.html", title="Register")
 		if password != confirm_password:
 			flash("Passwords don't match.")
-			return render_template("pages/auth/register.html", title="Register")
+			return render_template("auth/register.html", title="Register")
 		
 		if User.query.filter_by(username=username).first():
 			flash("Username already taken.")
-			return render_template("pages/auth/register.html", title="Register")
+			return render_template("auth/register.html", title="Register")
 		
 		user = User(
 			username=username,
@@ -78,7 +78,7 @@ def register():
 		flash("Account created — welcome!")
 		return redirect(url_for("admin.dashboard"))  # replace admin.dashboard to home.index
 	
-	return render_template("pages/auth/register.html", title="Register")
+	return render_template("auth/register.html", title="Register")
 
 
 @auth_bp.route("/logout")

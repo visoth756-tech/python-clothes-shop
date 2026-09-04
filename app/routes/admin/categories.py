@@ -38,7 +38,7 @@ def validate_category_name(name, category_id=None):
 @admin_required
 def categories():
 	return render_template(
-		"pages/admin/categories.html",
+		"admin/categories.html",
 		title="Categories"
 	)
 

@@ -25,7 +25,7 @@ def serialize_user(user: User) -> dict:
 @admin_bp.route("/users")
 @admin_required
 def users():
-  return render_template("pages/admin/users.html", title="Users")
+  return render_template("admin/users.html", title="Users")
 
 
 @admin_user_bp.route("", methods=["GET"])

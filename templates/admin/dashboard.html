@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-	{% include "pages/layouts/head.html" %}
+	{% include "layouts/head.html" %}
 </head>
 
 <body class="bg-paper text-ink">
@@ -19,15 +19,17 @@
 		<header id="pageHeader"></header>
 
 		<!-- CONTENT -->
-		<main class="flex-1 overflow-y-auto p-7" id="table">
+		<main class="flex-1 overflow-y-auto p-7">
 			<!-- injected by JS -->
 		</main>
 	</div>
 </div>
 
-{% include "pages/layouts/data.html" %}}
+<!-- MODAL: Add/Edit -->
 
-<script type="module" src="../../../static/js/pages/payment.js"></script>
+{% include "layouts/data.html" %}
+ 
+<script type="module" src="{{ url_for('static', filename='js/admin/dashboard.js') }}"></script>
 
 </body>
 

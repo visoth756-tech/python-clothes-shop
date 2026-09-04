@@ -8,6 +8,6 @@ from ..auth.decorators import admin_required
 @admin_required
 def dashboard():
 	return render_template(
-		"pages/admin/dashboard.html",
+		"admin/dashboard.html",
 		title="Dashboard"
 	)
