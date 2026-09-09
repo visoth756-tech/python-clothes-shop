@@ -1,0 +1,50 @@
+{% extends "home/base.html" %}
+{% block title %}Orders — ThreadShop{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>Your Orders</h1>
+    </div>
+
+    {% if orders %}
+    <div class="orders-list">
+        {% for order in orders %}
+        <div class="order-card">
+            <div class="order-card__header">
+                <div>
+                    <span class="order-card__id">Order #{{ order.id }}</span>
+                    <span class="order-card__date">{{ order.date }}</span>
+                </div>
+                <span class="badge {{ 'badge--success' if order.get('paid') else 'badge--warning' }}">
+                    {{ 'Paid' if order.get('paid') else 'Pending' }}
+                </span>
+            </div>
+            <div class="order-card__items">
+                {% for item in order['items'][:3] %}
+                <img src="{{ url_for('static', filename='img/' + item.image) }}"
+                     alt="{{ item.name }}"
+                     onerror="this.src='https://placehold.co/50x50?text=?'"
+                     title="{{ item.name }}">
+                {% endfor %}
+                {% if order['items']|length > 3 %}
+                <span class="order-card__more">+{{ order['items']|length - 3 }} more</span>
+                {% endif %}
+            </div>
+            <div class="order-card__footer">
+                <span class="order-card__total">{{ order.total }}</span>
+                <a href="{{ url_for('orders.order_detail', order_id=order.id) }}" class="btn btn--outline btn--sm">
+                    View Details
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>No orders yet.</p>
+        <a href="{{ url_for('products.products_page') }}" class="btn btn--primary">Start Shopping</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends "home/base.html" %}
+{% block title %}{{ product.name }} — ThreadShop{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/home/pages/product_detail.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+	<nav class="breadcrumb">
+		<a href="{{ url_for('main.index') }}">Home</a>
+		<span>/</span>
+		<a href="{{ url_for('products.products_page') }}">Shop</a>
+		<span>/</span>
+		<span>{{ product.name }}</span>
+	</nav>
+
+	<div class="product-detail">
+		<div class="product-detail__img">
+			<img id="mainImage" src="{{ url_for('static', filename='img/' + product.image) }}" alt="{{ product.name }}"
+				onerror="this.src='https://placehold.co/600x600?text=No+Image'">
+		</div>
+
+		<div class="product-detail__info">
+			<h1>{{ product.name }}</h1>
+			<p class="product-detail__price">{{ price }}</p>
+
+			<div class="product-detail__keywords">
+				{% for kw in product.keywords %}
+				<a href="{{ url_for('products.products_page', keyword=kw) }}" class="tag">{{ kw }}</a>
+				{% endfor %}
+			</div>
+
+			<form action="{{ url_for('cart.cart_add') }}" method="POST" class="product-detail__form">
+				<input type="hidden" name="product_id" value="{{ product.id }}">
+				<div class="qty-selector">
+					<label>Quantity</label>
+					<div class="qty-selector__controls">
+						<button type="button" onclick="changeQty(-1)">−</button>
+						<input type="number" name="qty" id="qtyInput" value="1" min="1" max="99" readonly>
+						<button type="button" onclick="changeQty(1)">+</button>
+					</div>
+				</div>
+				<button type="submit" class="btn btn--primary btn--full btn--lg">Add to Cart</button>
+			</form>
+		</div>
+	</div>
+
+	{% if related %}
+	<section class="section">
+		<div class="section__header">
+			<h2>Related Products</h2>
+		</div>
+		<div class="product-grid">
+			{% for p in related %}
+			<div class="product-card">
+				<a href="{{ url_for('products.product_detail', product_id=p.id) }}" class="product-card__img-wrap">
+					<img src="{{ url_for('static', filename='img/' + p.image) }}" alt="{{ p.name }}"
+						onerror="this.src='https://placehold.co/400x400?text=No+Image'">
+				</a>
+				<div class="product-card__body">
+					<a href="{{ url_for('products.product_detail', product_id=p.id) }}" class="product-card__name">{{
+						p.name }}</a>
+					<div class="product-card__footer">
+						<span class="product-card__price">{{ format_price(p.priceCents) }}</span>
+						<form action="{{ url_for('cart.cart_add') }}" method="POST" class="product-card__form">
+							<input type="hidden" name="product_id" value="{{ p.id }}">
+							<div class="card-qty">
+								<button type="button" class="card-qty__btn card-qty__btn--minus"
+									aria-label="Decrease quantity">−
+								</button>
+								<input type="number" name="qty" class="card-qty__input" value="1" min="1" max="99"
+									readonly>
+								<button type="button" class="card-qty__btn card-qty__btn--plus"
+									aria-label="Increase quantity">+
+								</button>
+							</div>
+							<button type="submit" class="btn btn--primary btn--sm product-card__btn">Add</button>
+						</form>
+					</div>
+				</div>
+			</div>
+			{% endfor %}
+		</div>
+	</section>
+	{% endif %}
+</div>
+{% endblock %}

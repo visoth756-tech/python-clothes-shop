@@ -1,0 +1,44 @@
+{% extends "home/base.html" %}
+{% block title %}Shop — ThreadShop{% endblock %}
+
+{% block content %}
+	<div class="container">
+		<div class="page-header">
+			<h1>Shop</h1>
+		</div>
+
+		<div class="shop-layout">
+			<!-- Sidebar filters -->
+			<aside class="sidebar">
+				<h3>Filter</h3>
+				<form method="GET" action="{{ url_for('products.products_page') }}">
+					<div class="sidebar__search">
+						<input type="text" name="search" placeholder="Search..." value="{{ search }}" class="input">
+					</div>
+					<div class="sidebar__categories">
+						<a href="{{ url_for('products.products_page') }}"
+							 class="sidebar__tag {{ 'active' if not active_keyword }}">All</a>
+						{% for kw in keywords %}
+							<a href="{{ url_for('products.products_page', keyword=kw, search=search) }}"
+								 class="sidebar__tag {{ 'active' if active_keyword == kw }}">{{ kw }}</a>
+						{% endfor %}
+					</div>
+					<button type="submit" class="btn btn--outline btn--full">Search</button>
+				</form>
+			</aside>
+
+			<!-- Product grid -->
+			<div class="shop-main">
+				<p class="results-count">{{ products|length }} product{{ 's' if products|length != 1 }}</p>
+				{% if products %}
+					{% include "home/components/products_grid.html" %}
+				{% else %}
+					<div class="empty-state">
+						<p>No products found.</p>
+						<a href="{{ url_for('products.products_page') }}" class="btn btn--outline">Clear filters</a>
+					</div>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+{% endblock %}

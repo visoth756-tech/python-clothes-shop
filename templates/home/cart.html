@@ -1,0 +1,71 @@
+{% extends "home/base.html" %}
+{% block title %}Cart — ThreadShop{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/home/cart/cart_qty.js') }}"></script>
+<script src="{{ url_for('static', filename='js/home/cart/cart_update.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>Your Cart</h1>
+    </div>
+
+    {% if items %}
+    <div class="cart-layout">
+        <div class="cart-items" id="cartItems">
+            {% for item in items %}
+            <div class="cart-item" data-id="{{ item.id }}">
+                <img src="{{ url_for('static', filename='img/' + item.image) }}" alt="{{ item.name }}"
+                    onerror="this.src='https://placehold.co/100x100?text=?'">
+                <div class="cart-item__info">
+                    <a href="{{ url_for('products.product_detail', product_id=item.id) }}" class="cart-item__name">
+                        {{ item.name }}
+                    </a>
+                    <p class="cart-item__price">{{ item.price }}</p>
+                </div>
+                <div class="cart-item__qty">
+                    <button class="qty-btn" onclick="cartAction('{{ item.id }}', 'decrease')">−</button>
+                    <span class="qty-value" id="qty-{{ item.id }}">{{ item.qty }}</span>
+                    <button class="qty-btn" onclick="cartAction('{{ item.id }}', 'increase')">+</button>
+                </div>
+                <div class="cart-item__subtotal" id="subtotal-{{ item.id }}">{{ item.subtotal }}</div>
+                <button class="cart-item__remove" onclick="cartAction('{{ item.id }}', 'remove')" aria-label="Remove">
+                    &times;
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="cart-summary">
+            <h3>Order Summary</h3>
+            <div class="cart-summary__row">
+                <span>Subtotal</span>
+                <span id="cartTotal">{{ total }}</span>
+            </div>
+            <div class="cart-summary__row">
+                <span>Shipping</span>
+                <span>Free</span>
+            </div>
+            <div class="cart-summary__row cart-summary__row--total">
+                <span>Total</span>
+                <span id="cartTotalFinal">{{ total }}</span>
+            </div>
+            <a href="{{ url_for('checkout.checkout') }}" class="btn btn--primary btn--full btn--lg">
+                Proceed to Checkout
+            </a>
+            <a href="{{ url_for('products.products_page') }}" class="btn btn--outline btn--full">
+                Continue Shopping
+            </a>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+        <p>Your cart is empty.</p>
+        <a href="{{ url_for('products.products_page') }}" class="btn btn--primary">Start Shopping</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

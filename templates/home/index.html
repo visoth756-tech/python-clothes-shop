@@ -1,10 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	{% include "layouts/head.html" %}
-	<title>Title</title>
-</head>
-<body class="w-full h-screen">
-	<h1 class="flex justify-center items-center text-9xl">Home</h1>
-</body>
-</html>
+{% extends "home/base.html" %}
+{% block title %}ThreadShop — Home{% endblock %}
+
+{% block content %}
+	<section class="hero">
+		<div class="hero__content">
+			<h1>Fresh Styles,<br>Every Season</h1>
+			<p>Discover clothing that fits your life.</p>
+			<a href="{{ url_for('products.products_page') }}" class="btn btn--primary btn--lg">Shop Now</a>
+		</div>
+	</section>
+
+	<section class="section">
+		<div class="container">
+			<div class="section__header">
+				<h2>Featured Products</h2>
+				<a href="{{ url_for('products.products_page') }}" class="link">View all &rarr;</a>
+			</div>
+			{% include "home/components/products_grid.html" %}
+		</div>
+	</section>
+
+{% endblock %}
