@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from app.extensions import db
 from . import admin_bp, admin_category_bp
 from ..auth.decorators import admin_required
-from ...models import Category
+from ...models import Category, Product
 
 
 def serialize_category(category):
@@ -111,7 +111,16 @@ def api_update_category(category_id):
 @admin_category_bp.route("/<string:category_id>", methods=["DELETE"])
 @admin_required
 def api_delete_category(category_id):
-	category = Category.query.get_or_404(category_id)
+	category = Category.query.get(category_id)
+	
+	if not category:
+		return jsonify({"error": "Category not found"}), 404
+	
+	if category.products:
+		return jsonify({
+			"error": "Cannot delete category because it is being used by one or more products."
+		}), 409
+	
 	db.session.delete(category)
 	db.session.commit()
 	return "", 204

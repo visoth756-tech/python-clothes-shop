@@ -1,8 +1,9 @@
 import {listCategories, createCategory, updateCategory, deleteCategory} from "../api/category.js";
 import {getProducts} from "../api/product.js";
-import {formatCapitalLetter, formatDate} from "../shared/format.js";
+import {formatDate} from "../shared/format.js";
 import {renderHeader} from "../component/header.js";
 import {renderSidebar} from "../component/sidebar.js";
+import {closeDeleteModal, getDeletingId, openDeleteModal} from "../component/popupConfrimDelete.js";
 
 let categories = [];
 let productList = [];
@@ -69,8 +70,6 @@ function renderTable(list) {
     return;
   }
 
-  console.log(list)
-
   categoryList.innerHTML = list.map(category => `
     <div class="grid grid-cols-[0.5fr_1.5fr_1fr_1fr_1fr] border-b border-stone-100 hover:bg-stone-50 items-center">
       <div class="px-5 py-4 font-medium">
@@ -94,14 +93,14 @@ function renderTable(list) {
           type="button"
           onclick="openCategoryModal('${category.id}')"
           class="text-stone-400 hover:text-blue-600 p-1.5 rounded hover:bg-stone-100 cursor-pointer">
-          <i class="fa-solid fa-pen"></i>
+          <i class="fa-solid fa-pen"></i> Upt
         </button>
 
         <button
           type="button"
-          onclick="handleDeleteCategory('${category.id}')"
-          class="text-stone-400 hover:text-red-600 p-1.5 rounded hover:bg-red-50 cursor-pointer ml-1">
-          <i class="fa-solid fa-trash"></i>
+          data-category-id="${category.id}"
+          class="delete-category text-stone-400 hover:text-red-600 p-1.5 rounded hover:bg-red-50 cursor-pointer ml-1">
+          <i class="fa-solid fa-trash"></i> Del
         </button>
       </div>
     </div>
@@ -129,15 +128,15 @@ async function saveCategory() {
   }
 }
 
-async function handleDeleteCategory(id) {
-  if (!confirm('Are you sure you want to delete this category?')) {
-    return;
-  }
+async function confirmDelete() {
+  const id = getDeletingId();
+  if (id === null) return;
 
   try {
     await deleteCategory(id);
     categories = await listCategories();
     renderTable(categories);
+    closeDeleteModal();
   } catch (error) {
     console.error('Error deleting category:', error);
     alert(error.message || 'Failed to delete category');
@@ -159,10 +158,20 @@ if (closeCategoryBtn) {
   closeCategoryBtn.addEventListener('click', () => closeCategoryModal());
 }
 
+document.addEventListener("click", (e) => {
+  const button = e.target.closest(".delete-category");
+
+  if (!button) return;
+
+  openDeleteModal(button.dataset.categoryId);
+});
+
 window.openCategoryModal = openCategoryModal;
 window.closeCategoryModal = closeCategoryModal;
-window.handleDeleteCategory = handleDeleteCategory;
-window.deleteCategory = handleDeleteCategory;
+window.confirmDelete = confirmDelete;
+window.deleteCategory = confirmDelete;
+
+window.closeDeleteModal = closeDeleteModal;
 
 async function initCategories() {
   categories = await listCategories();
