@@ -52,16 +52,16 @@ export function renderHeader(page) {
         <p class="text-[11px] font-mono uppercase tracking-widest text-stone-400" id="topBreadcrumb">Overview</p>
         <h1 class="font-display text-xl font-semibold text-ink" id="topTitle">${config.title}</h1>
       </div>
-<!--      <div class="flex items-center gap-3">-->
-<!--        <a href="../home"-->
-<!--          class="bg-brass hover:bg-brassLight text-ink font-medium text-sm px-4 py-2 rounded-md flex items-center gap-1.5 transition-colors">-->
-<!--          Go To Homepage-->
-<!--        </a>-->
+      <div class="flex items-center gap-3">
+        <a href="/"
+          class="bg-brass hover:bg-brassLight text-ink font-medium text-sm px-4 py-2 rounded-md flex items-center gap-1.5 transition-colors">
+          Go To Homepage
+        </a>
 
         ${config.button ? `
           <button onclick="${config.action}"
                   class="bg-brass hover:bg-brassLight text-ink font-medium text-sm px-4 py-2 rounded-md flex items-center gap-1.5 transition-colors cursor-pointer">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
             <span>${config.button}</span>

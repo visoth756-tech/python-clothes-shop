@@ -39,18 +39,18 @@ export function renderSidebar() {
 
       <nav class="flex-1 py-3 overflow-y-auto">
         ${menuItems.map(item => {
-    const url = window.ADMIN_URLS?.[item.key] || "#";
-    const isActive = currentPath === url;
-    return `
+          const url = window.ADMIN_URLS?.[item.key] || "#";
+          const isActive = currentPath === url;
+          return `
             <a href="${url}"
                class="flex items-center gap-3 px-5 py-3 text-sm transition-colors ${
-      isActive ? 'bg-stone-800 text-white font-medium' : 'hover:bg-stone-800/60 text-stone-400 hover:text-stone-200'
-    }">
+                isActive ? 'bg-stone-800 text-white font-medium' : 'hover:bg-stone-800/60 text-stone-400 hover:text-stone-200'
+              }">
               <i class="${item.icon} w-5 text-center"></i>
               <span class="hidden md:inline">${item.name}</span>
             </a>
           `;
-  }).join('')}
+        }).join('')}
       </nav>
 
       <div class="flex flex-col items-center justify-between gap-3 py-4 border-t border-white/10 px-4">

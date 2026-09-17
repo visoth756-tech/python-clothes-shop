@@ -2,6 +2,7 @@ import {getUsers, createUser, updateUser, deleteUser} from "../api/user.js";
 import {renderHeader} from "../component/header.js";
 import {renderSidebar} from "../component/sidebar.js";
 import {formatCapitalLetter, formatDate} from "../shared/format.js";
+import {closeDeleteModal, getDeletingId, openDeleteModal} from "../component/popupConfrimDelete.js";
 
 const USERS = {
   header: [
@@ -197,14 +198,15 @@ function renderUsers() {
         ${formatDate(u.updated_at || u.created_at)}
       </div>
 
-      <div class="px-5 py-4 text-right">
+      <div class="flex px-5 py-4 text-right">
         <button type="button" onclick="openModal('${u.id}')"
-          class="text-stone-400 hover:text-blue-600 p-1.5 rounded hover:bg-stone-100 cursor-pointer">
-          <i class="fa-solid fa-pen"></i>
+          class="flex items-center text-stone-400 hover:text-blue-600 p-1.5 rounded hover:bg-stone-100 cursor-pointer">
+          <i class="fa-solid fa-pen"></i>Upt
         </button>
-        <button type="button" onclick="handleDeleteUser('${u.id}')"
-          class="text-stone-400 hover:text-red-600 p-1.5 rounded hover:bg-red-50 cursor-pointer ml-1">
-          <i class="fa-solid fa-trash"></i>
+        <button type="button" 
+          data-user-id="${u.id}"
+          class="delete-user flex items-center text-stone-400 hover:text-red-600 p-1.5 rounded hover:bg-red-50 cursor-pointer ml-1">
+          <i class="fa-solid fa-trash"></i>Del
         </button>
       </div>
     </div>
@@ -249,24 +251,32 @@ if (form) {
   });
 }
 
-async function handleDeleteUser(id) {
-  if (!confirm("Are you sure you want to delete this user? This can't be undone.")) {
-    return;
-  }
+async function handleDeleteUser() {
+  const id = getDeletingId();
+  if(id === null) return;
 
   try {
     await deleteUser(id);
     await initUsers();
+    closeDeleteModal();
   } catch (error) {
     console.error('Error deleting user:', error);
     alert(error.message || 'Failed to delete user');
   }
 }
 
+document.addEventListener("click", (e) => {
+  const button = e.target.closest(".delete-user");
+
+  if (!button) return;
+
+  openDeleteModal(button.dataset.userId);
+});
+
 window.openModal = openModal;
 window.closeModal = closeModal;
-window.handleDeleteUser = handleDeleteUser;
-window.deleteUser = handleDeleteUser;
+window.confirmDelete = handleDeleteUser;
+window.closeDeleteModal = closeDeleteModal;
 
 async function initUsers() {
   userList = await getUsers();

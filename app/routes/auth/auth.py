@@ -1,7 +1,6 @@
 from flask import render_template, request, redirect, url_for, session, flash
 from werkzeug.security import check_password_hash, generate_password_hash
 
-import app
 from app.extensions import db
 from app.models import User
 from ...models.enums import Role, UserStatus
@@ -34,7 +33,7 @@ def login():
 			return redirect(next_page)
 		if user.role.value == "ADMIN":
 			return redirect(url_for("admin.dashboard"))
-		return redirect(url_for("home.index"))
+		return redirect(url_for("main.index"))
 	
 	return render_template("auth/login.html", title="Login")
 
@@ -63,7 +62,7 @@ def register():
 		user = User(
 			username=username,
 			password=generate_password_hash(password),
-			role=Role.ADMIN,  # change ADMIN to USER back
+			role=Role.USER,  # change ADMIN to USER back
 			status=UserStatus.ACTIVE,
 		)
 		db.session.add(user)
@@ -76,7 +75,7 @@ def register():
 		session['image'] = user.image or ''
 		
 		flash("Account created — welcome!")
-		return redirect(url_for("admin.dashboard"))  # replace admin.dashboard to home.index
+		return redirect(url_for("main.index"))  # replace admin.dashboard to home.index
 	
 	return render_template("auth/register.html", title="Register")
 

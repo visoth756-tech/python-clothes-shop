@@ -88,18 +88,18 @@ function renderTable(list) {
         ${formatDate(category.updated_at)}
       </div>
 
-      <div class="px-5 py-4 text-right">
+      <div class="flex px-5 py-4 text-right">
         <button
           type="button"
           onclick="openCategoryModal('${category.id}')"
-          class="text-stone-400 hover:text-blue-600 p-1.5 rounded hover:bg-stone-100 cursor-pointer">
+          class="flex items-center text-stone-400 hover:text-blue-600 p-1.5 rounded hover:bg-stone-100 cursor-pointer">
           <i class="fa-solid fa-pen"></i> Upt
         </button>
 
         <button
           type="button"
           data-category-id="${category.id}"
-          class="delete-category text-stone-400 hover:text-red-600 p-1.5 rounded hover:bg-red-50 cursor-pointer ml-1">
+          class="delete-category flex items-center text-stone-400 hover:text-red-600 p-1.5 rounded hover:bg-red-50 cursor-pointer ml-1">
           <i class="fa-solid fa-trash"></i> Del
         </button>
       </div>
@@ -169,8 +169,6 @@ document.addEventListener("click", (e) => {
 window.openCategoryModal = openCategoryModal;
 window.closeCategoryModal = closeCategoryModal;
 window.confirmDelete = confirmDelete;
-window.deleteCategory = confirmDelete;
-
 window.closeDeleteModal = closeDeleteModal;
 
 async function initCategories() {

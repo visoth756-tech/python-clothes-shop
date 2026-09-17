@@ -1,28 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}ThreadShop{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/home/style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/home/navbar.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/home/footer.css') }}">
-    {% block extra_css %}{% endblock %}
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>{% block title %}ThreadShop{% endblock %}</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/home/style.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/home/navbar.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/home/footer.css') }}">
+	{% block extra_css %}{% endblock %}
 </head>
 <body>
 
-    {% include "home/components/navbar.html" %}
+{% include "home/components/navbar.html" %}
 
-    <main class="main-content">
-        {% include "home/components/flash.html" %}
-        {% block content %}{% endblock %}
-    </main>
+<main class="main-content">
+	{% include "home/components/flash.html" %}
+	{% block content %}{% endblock %}
+</main>
 
-    {% include "home/components/footer.html" %}
+{% include "home/components/footer.html" %}
+{% include "layouts/data.html" %}
 
-    <script src="{{ url_for('static', filename='js/home/core/api.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/home/main.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/home/cart/cart_add.js') }}"></script>
-    {% block extra_js %}{% endblock %}
+<script src="{{ url_for('static', filename='js/home/core/api.js') }}"></script>
+<script src="{{ url_for('static', filename='js/home/main.js') }}"></script>
+<script src="{{ url_for('static', filename='js/home/pages/navbar.js') }}"></script>
+<script src="{{ url_for('static', filename='js/home/cart/cart_add.js') }}"></script>
+{% block extra_js %}{% endblock %}
 </body>
 </html>

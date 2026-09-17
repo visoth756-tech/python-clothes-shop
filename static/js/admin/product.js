@@ -4,6 +4,7 @@ import {renderHeader} from "../component/header.js";
 import {renderSidebar} from "../component/sidebar.js";
 import {formatCapitalLetter, formatMoney} from "../shared/format.js";
 import {getStockStatusBadge} from "./util.js";
+import {closeDeleteModal, getDeletingId, openDeleteModal} from "../component/popupConfrimDelete.js";
 
 const PRODUCTS = {
   header: [
@@ -12,7 +13,7 @@ const PRODUCTS = {
     {name: "Price", class: "text-center"},
     {name: "Qty", class: "text-center"},
     {name: "Status", class: "text-center"},
-    {name: "Action", class: "text-right"}
+    {name: "Action", class: "text-center"}
   ]
 };
 
@@ -190,8 +191,6 @@ function renderProducts() {
     return;
   }
 
-  console.log(product_list)
-
   container.innerHTML = product_list.map(product => {
     const categoryId = product.category_id ?? product.categoryId;
 
@@ -226,19 +225,19 @@ function renderProducts() {
           ${getStockStatusBadge(product.qty)}
         </div>
 
-        <div class="px-5 py-4 text-right">
+        <div class="flex px-5 py-4 text-right">
           <button
             type="button"
             onclick="openModal('${product.id}')"
-            class="text-stone-400 hover:text-blue-600 p-1.5 rounded hover:bg-stone-100 cursor-pointer">
-            <i class="fa-solid fa-pen"></i>
+            class="flex items-center text-stone-400 hover:text-blue-600 p-1.5 rounded hover:bg-stone-100 cursor-pointer">
+            <i class="fa-solid fa-pen"></i>Upt
           </button>
 
           <button
             type="button"
-            onclick="handleDeleteProduct('${product.id}')"
-            class="text-stone-400 hover:text-red-600 p-1.5 rounded hover:bg-red-50 cursor-pointer ml-1">
-            <i class="fa-solid fa-trash"></i>
+            data-product-id="${product.id}"
+            class="delete-product flex items-center text-stone-400 hover:text-red-600 p-1.5 rounded hover:bg-red-50 cursor-pointer ml-1">
+            <i class="fa-solid fa-trash"></i>Del
           </button>
         </div>
       </div>
@@ -284,15 +283,15 @@ async function handleSaveProduct() {
   }
 }
 
-async function handleDeleteProduct(id) {
-  if (!confirm('Are you sure you want to delete this product?')) {
-    return;
-  }
+async function handleDeleteProduct() {
+  const id = getDeletingId();
+  if (id === null) return;
 
   try {
     await deleteProduct(id);
     product_list = await getProducts();
     renderProducts();
+    closeDeleteModal();
   } catch (error) {
     console.error('Error deleting product:', error);
     alert(error.message || 'Failed to delete product');
@@ -306,10 +305,18 @@ if (form) {
   });
 }
 
+document.addEventListener("click", (e) => {
+  const button = e.target.closest(".delete-product");
+
+  if (!button) return;
+
+  openDeleteModal(button.dataset.productId);
+});
+
 window.openModal = openModal;
 window.closeModal = closeModal;
-window.handleDeleteProduct = handleDeleteProduct;
-window.deleteProduct = handleDeleteProduct;
+window.confirmDelete = handleDeleteProduct;
+window.closeDeleteModal = closeDeleteModal;
 
 async function initProducts() {
   categories = await listCategories();
