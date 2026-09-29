@@ -3,7 +3,9 @@ import {getProducts} from "../api/product.js";
 import {formatDate} from "../shared/format.js";
 import {renderHeader} from "../component/header.js";
 import {renderSidebar} from "../component/sidebar.js";
+import {showAlert} from "../component/alert.js";
 import {closeDeleteModal, getDeletingId, openDeleteModal} from "../component/popupConfrimDelete.js";
+
 
 let categories = [];
 let productList = [];
@@ -88,7 +90,7 @@ function renderTable(list) {
         ${formatDate(category.updated_at)}
       </div>
 
-      <div class="flex px-5 py-4 text-right">
+      <div class="flex justify-center px-5 py-4">
         <button
           type="button"
           onclick="openCategoryModal('${category.id}')"
@@ -124,7 +126,7 @@ async function saveCategory() {
     renderTable(categories);
   } catch (error) {
     console.error('Error saving category:', error);
-    alert(error.message || 'Failed to save category');
+    showAlert(error.message || 'Failed to save category', "error");
   }
 }
 
@@ -139,7 +141,7 @@ async function confirmDelete() {
     closeDeleteModal();
   } catch (error) {
     console.error('Error deleting category:', error);
-    alert(error.message || 'Failed to delete category');
+    showAlert(error.message || 'Failed to delete category', "error");
   }
 }
 

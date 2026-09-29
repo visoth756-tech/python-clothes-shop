@@ -94,7 +94,7 @@ def get_products():
 def get_product_by_id(product_id):
 	product = Product.query.get(product_id)
 	if not product:
-		return jsonify({"error": "Product not found"}), 404
+		return jsonify({"errors": "Product not found"}), 404
 	return jsonify(serialize_product(product)), 200
 
 
@@ -105,20 +105,20 @@ def create_product():
 	
 	name, error, status = _validate_product_name(data.get("name"))
 	if error:
-		return jsonify({"error": error}), status
+		return jsonify({"errors": error}), status
 	
 	category, error, status = _validate_category(data.get("category_id"))
 	if error:
-		return jsonify({"error": error}), status
+		return jsonify({"errors": error}), status
 	
 	price, qty, error = _parse_price_qty(data)
 	if error:
-		return jsonify({"error": error}), 400
+		return jsonify({"errors": error}), 400
 	
 	try:
 		image_path = save_product_image(request.files.get("image"))
 	except ValueError as e:
-		return jsonify({"error": str(e)}), 400
+		return jsonify({"errors": str(e)}), 400
 	
 	product = Product(
 		name=name,
@@ -134,7 +134,7 @@ def create_product():
 		db.session.commit()
 	except IntegrityError:
 		db.session.rollback()
-		return jsonify({"error": "Product name already exists"}), 409
+		return jsonify({"errors": "Product name already exists"}), 409
 	
 	return jsonify(serialize_product(product)), 201
 
@@ -145,7 +145,7 @@ def update_product(product_id):
 	product = Product.query.get(product_id)
 	
 	if not product:
-		return jsonify({"error": "Product not found"}), 404
+		return jsonify({"errors": "Product not found"}), 404
 	
 	data = request.form
 	
@@ -154,15 +154,15 @@ def update_product(product_id):
 		product.id
 	)
 	if error:
-		return jsonify({"error": error}), status
+		return jsonify({"errors": error}), status
 	
 	category, error, status = _validate_category(data.get("category_id"))
 	if error:
-		return jsonify({"error": error}), status
+		return jsonify({"errors": error}), status
 	
 	price, qty, error = _parse_price_qty(data)
 	if error:
-		return jsonify({"error": error}), 400
+		return jsonify({"errors": error}), 400
 	
 	if request.files.get("image"):
 		try:
@@ -171,7 +171,7 @@ def update_product(product_id):
 				old_image=product.image
 			)
 		except ValueError as e:
-			return jsonify({"error": str(e)}), 400
+			return jsonify({"errors": str(e)}), 400
 	
 	product.name = name
 	product.price = price
@@ -182,7 +182,7 @@ def update_product(product_id):
 		db.session.commit()
 	except IntegrityError:
 		db.session.rollback()
-		return jsonify({"error": "Product name already exists"}), 409
+		return jsonify({"errors": "Product name already exists"}), 409
 	
 	return jsonify(serialize_product(product)), 200
 
@@ -192,10 +192,10 @@ def update_product(product_id):
 def delete_product(product_id):
 	product = Product.query.get(product_id)
 	if not product:
-		return jsonify({"error": "Product not found"}), 404
+		return jsonify({"errors": "Product not found"}), 404
 	
 	if product.qty > 0:
-		return jsonify({"error": "Product still has stock"}), 400
+		return jsonify({"errors": "Product still has stock"}), 400
 	
 	delete_product_image(product.image)
 	

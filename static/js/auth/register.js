@@ -55,7 +55,7 @@ if (form) {
       await register(username, password);
       window.location.href = 'login.html';
     } catch (error) {
-      console.error('Signup error:', error);
+      console.error('Signup errors:', error);
       if (formErrorText) {
         formErrorText.textContent = error.message || 'Could not create account.';
       }

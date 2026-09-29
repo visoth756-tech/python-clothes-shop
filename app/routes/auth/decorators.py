@@ -30,8 +30,8 @@ def admin_required_api(view):
     @wraps(view)
     def wrapped(*args, **kwargs):
         if not session.get("user_id"):
-            return jsonify({"error": "Not authenticated"}), 401
+            return jsonify({"errors": "Not authenticated"}), 401
         if session.get("role") != "ADMIN":
-            return jsonify({"error": "Forbidden"}), 403
+            return jsonify({"errors": "Forbidden"}), 403
         return view(*args, **kwargs)
     return wrapped

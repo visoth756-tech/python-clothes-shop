@@ -55,4 +55,16 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".flash").forEach(el => {
         setTimeout(() => el.remove(), 4000);
     });
+
+    // Disable submit buttons on form submission to prevent spamming
+    document.addEventListener("submit", function (e) {
+        const submitBtn = e.target.querySelector('button[type="submit"], input[type="submit"]');
+        if (submitBtn && !submitBtn.disabled) {
+            setTimeout(() => {
+                submitBtn.disabled = true;
+                submitBtn.style.pointerEvents = "none";
+                submitBtn.style.opacity = "0.7";
+            }, 0);
+        }
+    });
 });

@@ -38,7 +38,7 @@ def get_users():
 def get_user_by_id(user_id):
   user = User.query.get(user_id)
   if not user:
-   return jsonify({"error": "User not found"}), 404
+   return jsonify({"errors": "User not found"}), 404
   return jsonify(serialize_user(user)), 200
 
 
@@ -52,23 +52,23 @@ def create_user():
   status = data.get("status", UserStatus.ACTIVE.value)
 
   if not username:
-   return jsonify({"error": "username is required"}), 400
+   return jsonify({"errors": "username is required"}), 400
   if not password:
-   return jsonify({"error": "password is required"}), 400
+   return jsonify({"errors": "password is required"}), 400
 
   if User.query.filter_by(username=username).first():
-   return jsonify({"error": "username already taken"}), 409
+   return jsonify({"errors": "username already taken"}), 409
 
   try:
    role = Role(role)
    status = UserStatus(status)
   except ValueError:
-   return jsonify({"error": "invalid role or status"}), 400
+   return jsonify({"errors": "invalid role or status"}), 400
 
   try:
    image_path = save_user_image(request.files.get("image"))
   except ValueError as e:
-   return jsonify({"error": str(e)}), 400
+   return jsonify({"errors": str(e)}), 400
 
   user = User(
    username=username,
@@ -88,17 +88,17 @@ def create_user():
 def update_user(user_id):
   user = User.query.get(user_id)
   if not user:
-   return jsonify({"error": "User not found"}), 404
+   return jsonify({"errors": "User not found"}), 404
 
   data = request.form
 
   if "username" in data:
    new_username = data["username"].strip()
    if not new_username:
-    return jsonify({"error": "username cannot be blank"}), 400
+    return jsonify({"errors": "username cannot be blank"}), 400
    existing = User.query.filter_by(username=new_username).first()
    if existing and existing.id != user.id:
-    return jsonify({"error": "username already taken"}), 409
+    return jsonify({"errors": "username already taken"}), 409
    user.username = new_username
 
   if data.get("password"):
@@ -108,19 +108,19 @@ def update_user(user_id):
    try:
     user.role = Role(data["role"])
    except ValueError:
-    return jsonify({"error": "invalid role"}), 400
+    return jsonify({"errors": "invalid role"}), 400
 
   if "status" in data:
    try:
     user.status = UserStatus(data["status"])
    except ValueError:
-    return jsonify({"error": "invalid status"}), 400
+    return jsonify({"errors": "invalid status"}), 400
 
   if request.files.get("image"):
    try:
     user.image = save_user_image(request.files.get("image"), old_image=user.image)
    except ValueError as e:
-    return jsonify({"error": str(e)}), 400
+    return jsonify({"errors": str(e)}), 400
 
   db.session.commit()
   return jsonify(serialize_user(user)), 200
@@ -130,10 +130,10 @@ def update_user(user_id):
 def delete_user(user_id):
   user = User.query.get(user_id)
   if not user:
-   return jsonify({"error": "User not found"}), 404
+   return jsonify({"errors": "User not found"}), 404
 
   if user.role == Role.ADMIN:
-   return jsonify({"error": "Admin users cannot be deleted"}), 403
+   return jsonify({"errors": "Admin users cannot be deleted"}), 403
 
   delete_user_image(user.image)
 

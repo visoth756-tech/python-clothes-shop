@@ -1,0 +1,30 @@
+{% if alert %}
+<div
+  id="alertMessage"
+  class="mb-5 flex items-center justify-between rounded-lg border px-4 py-3 text-sm"
+  role="alert"
+>
+  <div class="flex items-center gap-3">
+    {% if alert.type == "success" %}
+      <i class="fa-solid fa-circle-check"></i>
+    {% elif alert.type == "errors" %}
+      <i class="fa-solid fa-circle-exclamation"></i>
+    {% elif alert.type == "warning" %}
+      <i class="fa-solid fa-triangle-exclamation"></i>
+    {% else %}
+      <i class="fa-solid fa-circle-info"></i>
+    {% endif %}
+
+    <span>{{ alert.message }}</span>
+  </div>
+
+  <button
+    type="button"
+    onclick="this.closest('#alertMessage').remove()"
+    class="ml-4 text-lg leading-none opacity-60 hover:opacity-100"
+    aria-label="Close alert"
+  >
+    &times;
+  </button>
+</div>
+{% endif %}

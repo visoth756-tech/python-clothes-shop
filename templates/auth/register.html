@@ -199,9 +199,38 @@
 
 </div>
 
-{#<script type="module"#}
-{#				src="{{ url_for('static', filename='js/auth/register.js') }}">#}
-{#</script>#}
+<script>
+	document.querySelectorAll('.toggle-password').forEach(button => {
+		button.addEventListener('click', () => {
+			const targetId = button.getAttribute('data-target');
+			const input = document.getElementById(targetId);
+			const icon = button.querySelector('i');
+			if (input) {
+				const isHidden = input.type === 'password';
+				input.type = isHidden ? 'text' : 'password';
+				if (icon) {
+					icon.classList.toggle('fa-eye', !isHidden);
+					icon.classList.toggle('fa-eye-slash', isHidden);
+				}
+				button.setAttribute('aria-pressed', String(isHidden));
+			}
+		});
+	});
+
+	const signupForm = document.getElementById('signupForm');
+	const signupSubmit = document.getElementById('signupSubmit');
+	const signupSubmitText = document.getElementById('signupSubmitText');
+
+	if (signupForm && signupSubmit) {
+		signupForm.addEventListener('submit', function () {
+			signupSubmit.disabled = true;
+			signupSubmit.classList.add('opacity-70', 'cursor-not-allowed');
+			if (signupSubmitText) {
+				signupSubmitText.textContent = 'Creating account...';
+			}
+		});
+	}
+</script>
 </body>
 
 </html>

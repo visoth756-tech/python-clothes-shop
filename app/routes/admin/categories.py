@@ -61,7 +61,6 @@ def api_get_category(category_id):
 @admin_required
 def api_create_category():
 	data = request.get_json(silent=True) or {}
-	name = (data.get("name") or "").strip().lower()
 	
 	name, error, status = validate_category_name(data.get("name"))
 	
@@ -75,7 +74,7 @@ def api_create_category():
 		db.session.commit()
 	except IntegrityError:
 		db.session.rollback()
-		return jsonify({"error": "A category with that name already exists."}), 409
+		return jsonify({"errors": "A category with that name already exists."}), 409
 	
 	return jsonify(serialize_category(category)), 201
 
@@ -93,7 +92,7 @@ def api_update_category(category_id):
 	)
 	
 	if error:
-		return jsonify({"error": error}), status
+		return jsonify({"errors": error}), status
 	
 	category.name = name
 	
@@ -102,7 +101,7 @@ def api_update_category(category_id):
 	except IntegrityError:
 		db.session.rollback()
 		return jsonify({
-			"error": f'A category named "{name}" already exists.'
+			"errors": f'A category named "{name}" already exists.'
 		}), 409
 	
 	return jsonify(serialize_category(category))
@@ -114,11 +113,11 @@ def api_delete_category(category_id):
 	category = Category.query.get(category_id)
 	
 	if not category:
-		return jsonify({"error": "Category not found"}), 404
+		return jsonify({"errors": "Category not found"}), 404
 	
 	if category.products:
 		return jsonify({
-			"error": "Cannot delete category because it is being used by one or more products."
+			"errors": "Cannot delete category because it is being used by one or more products."
 		}), 409
 	
 	db.session.delete(category)
