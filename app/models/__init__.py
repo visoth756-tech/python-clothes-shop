@@ -4,6 +4,7 @@ from .order_item import OrderItem
 from .payment import Payment
 from .product import Product
 from .user import User
+from .rate_limit_log import RateLimitLog
 
 __all__ = [
     "User",
@@ -12,4 +13,5 @@ __all__ = [
     "Order",
     "OrderItem",
     "Payment",
+    "RateLimitLog"
 ]
