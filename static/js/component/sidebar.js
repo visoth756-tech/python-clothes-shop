@@ -15,6 +15,7 @@ export function renderSidebar() {
     {name: 'Orders', key: 'orders', icon: 'fa-solid fa-bag-shopping'},
     {name: 'Payments', key: 'payments', icon: 'fa-solid fa-credit-card'},
     {name: 'Users', key: 'users', icon: 'fa-solid fa-users'},
+    {name: 'Error Logs', key: 'error_logs', icon: 'fa-solid fa-bug'},
   ];
 
   sidebar.innerHTML = `

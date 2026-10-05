@@ -9,7 +9,7 @@ admin_category_bp = Blueprint("admin_category", __name__, url_prefix="/admin/api
 admin_product_bp = Blueprint("admin_product", __name__, url_prefix="/admin/api/products")
 admin_order_bp = Blueprint("admin_order", __name__, url_prefix="/admin/api/orders")
 admin_payment_bp = Blueprint("admin_payment", __name__, url_prefix="/admin/api/payments")
-
+admin_error_log_bp = Blueprint("admin_error_log", __name__, url_prefix="/admin/api/error-logs")
 
 def admin_user_key():
 	user_id = session.get("user_id")
@@ -26,9 +26,10 @@ for bp in [
 	admin_product_bp,
 	admin_order_bp,
 	admin_payment_bp,
+	admin_error_log_bp
 ]:
 	limiter.limit(
-		"10 per minute",
+		"100 per minute",
 		key_func=admin_user_key
 	)(bp)
 
@@ -38,3 +39,4 @@ from . import products
 from . import orders
 from . import payments
 from . import users
+from . import error_logs

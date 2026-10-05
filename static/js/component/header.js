@@ -28,6 +28,11 @@ const PAGE_HEADERS = {
     title: 'Payments',
     button: null,
     action: null
+  },
+  error_logs: {
+    title: 'Error Logs',
+    button: null,
+    action: null
   }
 };
 

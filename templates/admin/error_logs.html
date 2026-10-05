@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	{% include "layouts/head.html" %}
+</head>
+
+<body class="bg-paper text-ink">
+
+<div class="flex h-screen overflow-hidden">
+
+	<!-- SIDEBAR -->
+	<div id="sidebarNav"></div>
+
+	<!-- MAIN -->
+	<div class="flex-1 flex flex-col overflow-hidden">
+
+		<!-- TOPBAR -->
+		<div id="pageHeader"></div>
+
+		<!-- CONTENT -->
+		<main class="flex-1 overflow-y-auto p-7" id="table">
+			<!-- injected by JS -->
+		</main>
+	</div>
+</div>
+
+{% include "layouts/data.html" %}
+
+<script type="module" src="{{ url_for('static', filename='js/admin/errorLog.js') }}"></script>
+</body>
+
+</html>

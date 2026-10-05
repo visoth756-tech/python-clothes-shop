@@ -6,12 +6,13 @@
     orders: "{{ url_for('admin.orders') }}",
     payments: "{{ url_for('admin.payments') }}",
     users: "{{ url_for('admin.users') }}",
+    error_logs: "{{ url_for('admin.error_logs') }}",
   };
 
   window.CURRENT_USER = {
-    username: "{{ session.get('username', '') }}",
-    role: "{{ session.get('role', '') }}",
-    image: "{{ session.get('image', '') }}",
+    username: {{ session.get('username', '') | tojson }},
+    role: {{ session.get('role', '') | tojson }},
+    image: {{ session.get('image', '') | tojson }},
   };
 
   window.LOGOUT_URL = "{{ url_for('auth.logout') }}";
