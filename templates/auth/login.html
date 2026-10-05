@@ -120,6 +120,8 @@
 			{% endwith %}
 
 			<form id="loginForm" method="POST" action="{{ url_for('auth.login') }}" class="space-y-5">
+				<!-- CSRF token -->
+				<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 				<div>
 					<label for="username" class="block text-xs font-semibold uppercase tracking-wide text-stone-500 mb-2">
 						Username
@@ -175,36 +177,36 @@
 </div>
 
 <script>
-	const togglePassword = document.getElementById('togglePassword');
-	const togglePasswordIcon = document.getElementById('togglePasswordIcon');
-	const passwordInput = document.getElementById('password');
+  const togglePassword = document.getElementById('togglePassword');
+  const togglePasswordIcon = document.getElementById('togglePasswordIcon');
+  const passwordInput = document.getElementById('password');
 
-	if (togglePassword && passwordInput) {
-		togglePassword.addEventListener('click', () => {
-			const isHidden = passwordInput.type === 'password';
-			passwordInput.type = isHidden ? 'text' : 'password';
-			if (togglePasswordIcon) {
-				togglePasswordIcon.classList.toggle('fa-eye', !isHidden);
-				togglePasswordIcon.classList.toggle('fa-eye-slash', isHidden);
-			}
-			togglePassword.setAttribute('aria-pressed', String(isHidden));
-			togglePassword.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
-		});
-	}
+  if (togglePassword && passwordInput) {
+    togglePassword.addEventListener('click', () => {
+      const isHidden = passwordInput.type === 'password';
+      passwordInput.type = isHidden ? 'text' : 'password';
+      if (togglePasswordIcon) {
+        togglePasswordIcon.classList.toggle('fa-eye', !isHidden);
+        togglePasswordIcon.classList.toggle('fa-eye-slash', isHidden);
+      }
+      togglePassword.setAttribute('aria-pressed', String(isHidden));
+      togglePassword.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+    });
+  }
 
-	const loginForm = document.getElementById('loginForm');
-	const loginSubmit = document.getElementById('loginSubmit');
-	const loginSubmitText = document.getElementById('loginSubmitText');
+  const loginForm = document.getElementById('loginForm');
+  const loginSubmit = document.getElementById('loginSubmit');
+  const loginSubmitText = document.getElementById('loginSubmitText');
 
-	if (loginForm && loginSubmit) {
-		loginForm.addEventListener('submit', function () {
-			loginSubmit.disabled = true;
-			loginSubmit.classList.add('opacity-70', 'cursor-not-allowed');
-			if (loginSubmitText) {
-				loginSubmitText.textContent = 'Signing in...';
-			}
-		});
-	}
+  if (loginForm && loginSubmit) {
+    loginForm.addEventListener('submit', function () {
+      loginSubmit.disabled = true;
+      loginSubmit.classList.add('opacity-70', 'cursor-not-allowed');
+      if (loginSubmitText) {
+        loginSubmitText.textContent = 'Signing in...';
+      }
+    });
+  }
 </script>
 </body>
 

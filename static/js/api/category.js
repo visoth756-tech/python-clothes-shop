@@ -1,5 +1,11 @@
 const BASE_URL = "/admin/api/categories";
 
+function getCsrfToken() {
+  return document.querySelector(
+    '#categoryForm input[name="csrf_token"]'
+  ).value;
+}
+
 export async function listCategories() {
   const res = await fetch(BASE_URL);
   if (!res.ok) throw new Error("Failed to load categories");
@@ -13,9 +19,14 @@ export async function getCategory(id) {
 }
 
 export async function createCategory(name) {
+  const csrfToken = getCsrfToken()
+
   const res = await fetch(BASE_URL, {
     method: "POST",
-    headers: {"Content-Type": "application/json"},
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFTOKEN": csrfToken
+    },
     body: JSON.stringify({name}),
   });
   const data = await res.json();
@@ -24,9 +35,14 @@ export async function createCategory(name) {
 }
 
 export async function updateCategory(id, name) {
+  const csrfToken = getCsrfToken();
+
   const res = await fetch(`${BASE_URL}/${id}`, {
     method: "PUT",
-    headers: {"Content-Type": "application/json"},
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFTOKEN": csrfToken
+    },
     body: JSON.stringify({name}),
   });
   const data = await res.json();
@@ -35,8 +51,13 @@ export async function updateCategory(id, name) {
 }
 
 export async function deleteCategory(id) {
+  const csrfToken = getCsrfToken();
+
   const res = await fetch(`${BASE_URL}/${id}`, {
-    method: "DELETE"
+    method: "DELETE",
+    headers: {
+      "X-CSRFTOKEN": csrfToken
+    },
   });
 
   if (!res.ok) {

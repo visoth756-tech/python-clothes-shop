@@ -1,5 +1,11 @@
 const BASE_URL = "/admin/api/products";
 
+function getCsrfToken() {
+  return document.querySelector(
+    '#productForm input[name="csrf_token"]'
+  ).value;
+}
+
 function getThumbFilename(filename) {
   if (!filename) return null;
   return filename.replace(/(\.[a-zA-Z0-9]+)$/, "_thumb$1");
@@ -34,7 +40,9 @@ async function handleResponse(res) {
 export async function getProducts() {
   const res = await fetch(BASE_URL, {
     method: "GET",
-    headers: { "Accept": "application/json" },
+    headers: {
+      "Accept": "application/json",
+    },
   });
   return handleResponse(res);
 }
@@ -42,16 +50,16 @@ export async function getProducts() {
 export async function getByIdProduct(productId) {
   const res = await fetch(`${BASE_URL}/${productId}`, {
     method: "GET",
-    headers: { "Accept": "application/json" },
+    headers: {
+      "Accept": "application/json"
+    },
   });
   return handleResponse(res);
 }
 
-/**
- * @param {FormData|Object} data - FormData or { name, price, qty, category_id/categoryId }
- * @param {File} [imageFile] - optional image file from an <input type="file">
- */
 export async function createProduct(data, imageFile) {
+  const csrfToken = getCsrfToken();
+
   let body = data;
   if (!(data instanceof FormData)) {
     const formData = new FormData();
@@ -67,17 +75,17 @@ export async function createProduct(data, imageFile) {
 
   const res = await fetch(BASE_URL, {
     method: "POST",
+    headers: {
+      "X-CSRFTOKEN": csrfToken
+    },
     body: body,
   });
   return handleResponse(res);
 }
 
-/**
- * @param {string} productId
- * @param {FormData|Object} data - FormData or { name, price, qty, category_id/categoryId }
- * @param {File} [imageFile] - optional new image file
- */
 export async function updateProduct(productId, data, imageFile) {
+  const csrfToken = getCsrfToken();
+
   let body = data;
   if (!(data instanceof FormData)) {
     const formData = new FormData();
@@ -93,15 +101,23 @@ export async function updateProduct(productId, data, imageFile) {
 
   const res = await fetch(`${BASE_URL}/${productId}`, {
     method: "PUT",
+    headers: {
+      "X-CSRFTOKEN": csrfToken
+    },
     body: body,
   });
   return handleResponse(res);
 }
 
 export async function deleteProduct(productId) {
+  const csrfToken = getCsrfToken();
+
   const res = await fetch(`${BASE_URL}/${productId}`, {
     method: "DELETE",
-    headers: { "Accept": "application/json" },
+    headers: {
+      "Accept": "application/json",
+      "X-CSRFTOKEN": csrfToken
+    },
   });
   return handleResponse(res);
 }

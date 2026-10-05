@@ -67,6 +67,9 @@
 		<h2 id="popupTitle" class="text-lg font-semibold mb-4"></h2>
 
 		<form id="categoryForm">
+			<!-- CSRF token -->
+			<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
 			<div>
 				<label for="categoryName" class="block text-sm font-medium text-stone-700 mb-1">Name *</label>
 

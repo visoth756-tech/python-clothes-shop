@@ -26,7 +26,10 @@
 </div>
 
 <!-- MODAL: Add/Edit -->
-<div id="formModel" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center">r">
+<div id="formModel" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center">
+	<!-- CSRF token -->
+	<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
 	<div class="bg-white rounded-lg p-6 w-full max-w-md">
 		<h2 id="popupTitle" class="text-lg font-semibold mb-4"></h2>
 

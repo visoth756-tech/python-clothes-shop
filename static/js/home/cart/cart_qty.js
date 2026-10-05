@@ -1,8 +1,16 @@
-async function cartAction(productId, action) {
-    try {
-        const data = await post("/api/cart/update", { product_id: productId, action });
-        updateCartUI(data, productId, action);
-    } catch (e) {
-        console.error("Cart update failed", e);
-    }
+async function post(url, data) {
+    const csrfToken = document.querySelector(
+        'meta[name="csrf-token"]'
+    )?.content;
+
+    const response = await fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken
+        },
+        body: JSON.stringify(data)
+    });
+
+    return await response.json();
 }

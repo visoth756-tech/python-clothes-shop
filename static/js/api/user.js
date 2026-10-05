@@ -1,5 +1,11 @@
 const BASE_URL = "/admin/api/users";
 
+function getCsrfToken() {
+  return document.querySelector(
+    '#formModel input[name="csrf_token"]'
+  ).value;
+}
+
 function getThumbFilename(filename) {
   if (!filename) return null;
   return filename.replace(/(\.[a-zA-Z0-9]+)$/, "_thumb$1");
@@ -28,8 +34,13 @@ export async function getUserById(id) {
 }
 
 export async function createUser(formData) {
+  const csrfToken = getCsrfToken();
+
   const res = await fetch(BASE_URL, {
     method: "POST",
+    headers: {
+      "X-CSRFTOKEN": csrfToken
+    },
     body: formData,          // no Content-Type header — browser sets the multipart boundary itself
   });
   if (!res.ok) {
@@ -40,8 +51,13 @@ export async function createUser(formData) {
 }
 
 export async function updateUser(id, formData) {
+  const csrfToken = getCsrfToken();
+
   const res = await fetch(`${BASE_URL}/${id}`, {
     method: "PUT",
+    headers: {
+      "X-CSRFTOKEN": csrfToken
+    },
     body: formData,
   });
   if (!res.ok) {
@@ -52,7 +68,14 @@ export async function updateUser(id, formData) {
 }
 
 export async function deleteUser(id) {
-  const res = await fetch(`${BASE_URL}/${id}`, {method: "DELETE"});
+  const csrfToken = getCsrfToken();
+
+  const res = await fetch(`${BASE_URL}/${id}`, {
+    method: "DELETE",
+    headers: {
+      "X-CSRFTOKEN": csrfToken
+    }
+  });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || "Failed to delete user");

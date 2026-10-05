@@ -4,233 +4,241 @@
 <head>
 	{% include "layouts/head.html" %}
 	<script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            ink: '#1c1a17',
-            brass: {
-              50: '#faf6ee',
-              100: '#f2e9d3',
-              300: '#d9bd82',
-              500: '#a97c3f',
-              600: '#8f6530',
-              700: '#6f4d24',
-            },
-            cream: '#faf7f2',
-          },
-          fontFamily: {
-            display: ['Fraunces', 'serif'],
-            mono: ['"JetBrains Mono"', 'monospace'],
-          }
-        }
-      }
-    }
+		tailwind.config = {
+			theme: {
+				extend: {
+					colors: {
+						ink: '#1c1a17',
+						brass: {
+							50: '#faf6ee',
+							100: '#f2e9d3',
+							300: '#d9bd82',
+							500: '#a97c3f',
+							600: '#8f6530',
+							700: '#6f4d24',
+						},
+						cream: '#faf7f2',
+					},
+					fontFamily: {
+						display: ['Fraunces', 'serif'],
+						mono: ['"JetBrains Mono"', 'monospace'],
+					}
+				}
+			}
+		}
 	</script>
 	<style>
-      body {
-          font-family: 'JetBrains Mono', monospace;
-      }
+		body {
+			font-family: 'JetBrains Mono', monospace;
+		}
 
-      .font-display {
-          font-family: 'Fraunces', serif;
-      }
+		.font-display {
+			font-family: 'Fraunces', serif;
+		}
 
-      .bean-pattern {
-          background-image: radial-gradient(circle at 1px 1px, rgba(250, 247, 242, 0.14) 1px, transparent 0);
-          background-size: 22px 22px;
-      }
+		.bean-pattern {
+			background-image: radial-gradient(circle at 1px 1px, rgba(250, 247, 242, 0.14) 1px, transparent 0);
+			background-size: 22px 22px;
+		}
 	</style>
 </head>
 
 <body class="bg-cream text-ink">
 
-<div class="min-h-screen grid lg:grid-cols-[1fr_1fr] xl:grid-cols-[45fr_55fr]">
+	<div class="min-h-screen grid lg:grid-cols-[1fr_1fr] xl:grid-cols-[45fr_55fr]">
 
-	<!-- Left: brand / editorial panel -->
-	<div class="relative hidden lg:flex flex-col justify-between bg-ink text-brass p-12 xl:p-16 overflow-hidden">
-		<div class="absolute inset-0 bean-pattern opacity-40"></div>
+		<!-- Left: brand / editorial panel -->
+		<div class="relative hidden lg:flex flex-col justify-between bg-ink text-brass p-12 xl:p-16 overflow-hidden">
+			<div class="absolute inset-0 bean-pattern opacity-40"></div>
 
-		<div class="relative flex items-center gap-3 text-white">
-			<div class="w-10 h-10 rounded-full border border-brass-300/60 flex items-center justify-center">
-				<i class="fa-solid fa-mug-saucer text-white text-sm"></i>
-			</div>
-			<span class="text-xs uppercase tracking-[0.25em] text-white">Stock Admin</span>
-		</div>
-
-		<div class="relative">
-			<p class="text-xs uppercase tracking-[0.3em] text-brass mb-4">No. 001 — Onboarding</p>
-			<h1 class="font-display text-5xl xl:text-6xl leading-[1.05] mb-6">
-				Set up<br>
-				your desk,<br>
-				<span class="text-brass italic">start counting.</span>
-			</h1>
-			<p class="text-brass text-sm leading-relaxed max-w-sm">
-				A few details and you're in — tracking batches, categories, and what's running low.
-			</p>
-		</div>
-
-		<div class="relative flex items-center gap-6 text-[11px] uppercase tracking-widest text-white">
-			<span>Categories</span>
-			<span class="w-1 h-1 rounded-full bg-cream/30"></span>
-			<span>Products</span>
-			<span class="w-1 h-1 rounded-full bg-cream/30"></span>
-			<span>Stock</span>
-		</div>
-	</div>
-
-	<!-- Right: form -->
-	<div class="flex items-center justify-center p-6 sm:p-10">
-		<div class="w-full max-w-sm">
-
-			<div class="lg:hidden flex items-center gap-3 mb-10 justify-center">
-				<div class="w-9 h-9 rounded-full border border-brass-500/50 flex items-center justify-center">
-					<i class="fa-solid fa-mug-saucer text-brass-500 text-sm"></i>
+			<div class="relative flex items-center gap-3 text-white">
+				<div class="w-10 h-10 rounded-full border border-brass-300/60 flex items-center justify-center">
+					<i class="fa-solid fa-mug-saucer text-white text-sm"></i>
 				</div>
-				<span class="text-xs uppercase tracking-[0.25em] text-brass-600">Stock Admin</span>
+				<span class="text-xs uppercase tracking-[0.25em] text-white">Stock Admin</span>
 			</div>
 
-			<a href="{{ url_for('main.index') }}"
-				 class="flex items-center gap-2 mb-2 text-brass-600 hover:text-brass-700 transition-colors">
-				<p class="mb-2">
-					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-							 stroke="currentColor"
-							 class="size-6">
-						<path stroke-linecap="round" stroke-linejoin="round"
-									d="m11.25 9-3 3m0 0 3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-					</svg>
+			<div class="relative">
+				<p class="text-xs uppercase tracking-[0.3em] text-brass mb-4">No. 001 — Onboarding</p>
+				<h1 class="font-display text-5xl xl:text-6xl leading-[1.05] mb-6">
+					Set up<br>
+					your desk,<br>
+					<span class="text-brass italic">start counting.</span>
+				</h1>
+				<p class="text-brass text-sm leading-relaxed max-w-sm">
+					A few details and you're in — tracking batches, categories, and what's running low.
+				</p>
+			</div>
+
+			<div class="relative flex items-center gap-6 text-[11px] uppercase tracking-widest text-white">
+				<span>Categories</span>
+				<span class="w-1 h-1 rounded-full bg-cream/30"></span>
+				<span>Products</span>
+				<span class="w-1 h-1 rounded-full bg-cream/30"></span>
+				<span>Stock</span>
+			</div>
+		</div>
+
+		<!-- Right: form -->
+		<div class="flex items-center justify-center p-6 sm:p-10">
+			<div class="w-full max-w-sm">
+
+				<div class="lg:hidden flex items-center gap-3 mb-10 justify-center">
+					<div class="w-9 h-9 rounded-full border border-brass-500/50 flex items-center justify-center">
+						<i class="fa-solid fa-mug-saucer text-brass-500 text-sm"></i>
+					</div>
+					<span class="text-xs uppercase tracking-[0.25em] text-brass-600">Stock Admin</span>
+				</div>
+
+				<a href="{{ url_for('main.index') }}"
+					class="flex items-center gap-2 mb-2 text-brass-600 hover:text-brass-700 transition-colors">
+					<p class="mb-2">
+						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+							stroke="currentColor" class="size-6">
+							<path stroke-linecap="round" stroke-linejoin="round"
+								d="m11.25 9-3 3m0 0 3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+						</svg>
+					</p>
+
+					<p class="text-sm uppercase font-display text-brass-600 mb-2">Return Home</p>
+				</a>
+
+
+				<p class="text-xs uppercase tracking-[0.3em] text-brass-600 mb-2">Get started</p>
+				<h2 class="font-display text-3xl sm:text-4xl mb-8">Create account</h2>
+
+				{% with messages = get_flashed_messages() %}
+				{% if messages %}
+				<div class="mb-5 px-4 py-3 rounded-md bg-red-50 border border-red-200 text-red-700 text-xs">
+					<i class="fa-solid fa-circle-exclamation mr-1.5"></i>
+					{% for msg in messages %}
+					<span>{{ msg }}</span>
+					{% endfor %}
+				</div>
+				{% endif %}
+				{% endwith %}
+
+				<form id="signupForm" method="POST" action="{{ url_for('auth.register') }}" class="space-y-5">
+					<!-- CSRF token -->
+					<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+					<div>
+						<label for="username"
+							class="block text-xs font-semibold uppercase tracking-wide text-stone-500 mb-2">
+							Username
+						</label>
+
+						<div class="relative">
+							<span class="absolute inset-y-0 left-3.5 flex w-5 items-center justify-center">
+								<i class="fa-solid fa-user text-stone-400 text-sm"></i>
+							</span>
+
+							<input id="username" name="username" type="text" autocomplete="username" required
+								placeholder="e.g. kai_barista" class="w-full pl-11 pr-3 py-2.5 rounded-md border border-stone-300 bg-white text-sm
+           focus:outline-none focus:ring-2 focus:ring-brass-500/40 focus:border-brass-500">
+						</div>
+					</div>
+
+					<div>
+						<label for="password"
+							class="block text-xs font-semibold uppercase tracking-wide text-stone-500 mb-2">
+							Password
+						</label>
+
+						<div class="relative">
+							<span class="absolute inset-y-0 left-3.5 flex w-5 items-center justify-center">
+								<i class="fa-solid fa-lock text-stone-400 text-sm"></i>
+							</span>
+
+							<input id="password" name="password" type="password" autocomplete="new-password" required
+								placeholder="At least 6 characters" class="w-full pl-11 pr-11 py-2.5 rounded-md border border-stone-300 bg-white text-sm
+           focus:outline-none focus:ring-2 focus:ring-brass-500/40 focus:border-brass-500">
+
+							<button type="button"
+								class="toggle-password absolute inset-y-0 right-3 flex items-center justify-center"
+								data-target="password" aria-label="Show password" aria-pressed="false">
+								<span class="flex w-5 items-center justify-center">
+									<i class="fa-solid fa-eye text-stone-400 text-sm"></i>
+								</span>
+							</button>
+						</div>
+					</div>
+
+					<div>
+						<label for="confirmPassword"
+							class="block text-xs font-semibold uppercase tracking-wide text-stone-500 mb-2">
+							Confirm password
+						</label>
+
+						<div class="relative">
+							<span class="absolute inset-y-0 left-3.5 flex w-5 items-center justify-center">
+								<i class="fa-solid fa-lock text-stone-400 text-sm"></i>
+							</span>
+
+							<input id="confirmPassword" name="confirmPassword" type="password"
+								autocomplete="new-password" required placeholder="Re-enter password" class="w-full pl-11 pr-11 py-2.5 rounded-md border border-stone-300 bg-white text-sm
+           focus:outline-none focus:ring-2 focus:ring-brass-500/40 focus:border-brass-500">
+
+							<button type="button"
+								class="toggle-password absolute inset-y-0 right-3 flex items-center justify-center"
+								data-target="confirmPassword" aria-label="Show password" aria-pressed="false">
+								<span class="flex w-5 items-center justify-center">
+									<i class="fa-solid fa-eye text-stone-400 text-sm"></i>
+								</span>
+							</button>
+						</div>
+					</div>
+
+					<button type="submit" id="signupSubmit" class="w-full py-2.5 rounded-md bg-ink text-cream text-sm font-medium tracking-wide
+                   hover:bg-brass-700 transition-colors flex items-center justify-center gap-2">
+						<span id="signupSubmitText" class="text-white">Create account</span>
+						<i class="fa-solid fa-arrow-right text-xs"></i>
+					</button>
+				</form>
+
+				<p class="text-center text-xs text-stone-400 mt-8">
+					Already have an account?
+					<a href="{{ url_for('auth.login') }}" class="text-brass-600 font-semibold hover:underline">Sign
+						in</a>
 				</p>
 
-				<p class="text-sm uppercase font-display text-brass-600 mb-2">Return Home</p>
-			</a>
-
-
-			<p class="text-xs uppercase tracking-[0.3em] text-brass-600 mb-2">Get started</p>
-			<h2 class="font-display text-3xl sm:text-4xl mb-8">Create account</h2>
-
-			{% with messages = get_flashed_messages() %}
-				{% if messages %}
-					<div class="mb-5 px-4 py-3 rounded-md bg-red-50 border border-red-200 text-red-700 text-xs">
-						<i class="fa-solid fa-circle-exclamation mr-1.5"></i>
-						{% for msg in messages %}
-							<span>{{ msg }}</span>
-						{% endfor %}
-					</div>
-				{% endif %}
-			{% endwith %}
-
-			<form id="signupForm" method="POST" action="{{ url_for('auth.register') }}" class="space-y-5">
-				<div>
-					<label for="username" class="block text-xs font-semibold uppercase tracking-wide text-stone-500 mb-2">
-						Username
-					</label>
-
-					<div class="relative">
-          <span class="absolute inset-y-0 left-3.5 flex w-5 items-center justify-center">
-            <i class="fa-solid fa-user text-stone-400 text-sm"></i>
-          </span>
-
-						<input id="username" name="username" type="text" autocomplete="username" required
-									 placeholder="e.g. kai_barista" class="w-full pl-11 pr-3 py-2.5 rounded-md border border-stone-300 bg-white text-sm
-           focus:outline-none focus:ring-2 focus:ring-brass-500/40 focus:border-brass-500">
-					</div>
-				</div>
-
-				<div>
-					<label for="password" class="block text-xs font-semibold uppercase tracking-wide text-stone-500 mb-2">
-						Password
-					</label>
-
-					<div class="relative">
-          <span class="absolute inset-y-0 left-3.5 flex w-5 items-center justify-center">
-            <i class="fa-solid fa-lock text-stone-400 text-sm"></i>
-          </span>
-
-						<input id="password" name="password" type="password" autocomplete="new-password" required
-									 placeholder="At least 6 characters" class="w-full pl-11 pr-11 py-2.5 rounded-md border border-stone-300 bg-white text-sm
-           focus:outline-none focus:ring-2 focus:ring-brass-500/40 focus:border-brass-500">
-
-						<button type="button" class="toggle-password absolute inset-y-0 right-3 flex items-center justify-center"
-										data-target="password" aria-label="Show password" aria-pressed="false">
-            <span class="flex w-5 items-center justify-center">
-              <i class="fa-solid fa-eye text-stone-400 text-sm"></i>
-            </span>
-						</button>
-					</div>
-				</div>
-
-				<div>
-					<label for="confirmPassword" class="block text-xs font-semibold uppercase tracking-wide text-stone-500 mb-2">
-						Confirm password
-					</label>
-
-					<div class="relative">
-          <span class="absolute inset-y-0 left-3.5 flex w-5 items-center justify-center">
-            <i class="fa-solid fa-lock text-stone-400 text-sm"></i>
-          </span>
-
-						<input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" required
-									 placeholder="Re-enter password" class="w-full pl-11 pr-11 py-2.5 rounded-md border border-stone-300 bg-white text-sm
-           focus:outline-none focus:ring-2 focus:ring-brass-500/40 focus:border-brass-500">
-
-						<button type="button" class="toggle-password absolute inset-y-0 right-3 flex items-center justify-center"
-										data-target="confirmPassword" aria-label="Show password" aria-pressed="false">
-            <span class="flex w-5 items-center justify-center">
-              <i class="fa-solid fa-eye text-stone-400 text-sm"></i>
-            </span>
-						</button>
-					</div>
-				</div>
-
-				<button type="submit" id="signupSubmit" class="w-full py-2.5 rounded-md bg-ink text-cream text-sm font-medium tracking-wide
-                   hover:bg-brass-700 transition-colors flex items-center justify-center gap-2">
-					<span id="signupSubmitText" class="text-white">Create account</span>
-					<i class="fa-solid fa-arrow-right text-xs"></i>
-				</button>
-			</form>
-
-			<p class="text-center text-xs text-stone-400 mt-8">
-				Already have an account?
-				<a href="{{ url_for('auth.login') }}" class="text-brass-600 font-semibold hover:underline">Sign in</a>
-			</p>
-
+			</div>
 		</div>
+
 	</div>
 
-</div>
-
-<script>
-	document.querySelectorAll('.toggle-password').forEach(button => {
-		button.addEventListener('click', () => {
-			const targetId = button.getAttribute('data-target');
-			const input = document.getElementById(targetId);
-			const icon = button.querySelector('i');
-			if (input) {
-				const isHidden = input.type === 'password';
-				input.type = isHidden ? 'text' : 'password';
-				if (icon) {
-					icon.classList.toggle('fa-eye', !isHidden);
-					icon.classList.toggle('fa-eye-slash', isHidden);
+	<script>
+		document.querySelectorAll('.toggle-password').forEach(button => {
+			button.addEventListener('click', () => {
+				const targetId = button.getAttribute('data-target');
+				const input = document.getElementById(targetId);
+				const icon = button.querySelector('i');
+				if (input) {
+					const isHidden = input.type === 'password';
+					input.type = isHidden ? 'text' : 'password';
+					if (icon) {
+						icon.classList.toggle('fa-eye', !isHidden);
+						icon.classList.toggle('fa-eye-slash', isHidden);
+					}
+					button.setAttribute('aria-pressed', String(isHidden));
 				}
-				button.setAttribute('aria-pressed', String(isHidden));
-			}
+			});
 		});
-	});
 
-	const signupForm = document.getElementById('signupForm');
-	const signupSubmit = document.getElementById('signupSubmit');
-	const signupSubmitText = document.getElementById('signupSubmitText');
+		const signupForm = document.getElementById('signupForm');
+		const signupSubmit = document.getElementById('signupSubmit');
+		const signupSubmitText = document.getElementById('signupSubmitText');
 
-	if (signupForm && signupSubmit) {
-		signupForm.addEventListener('submit', function () {
-			signupSubmit.disabled = true;
-			signupSubmit.classList.add('opacity-70', 'cursor-not-allowed');
-			if (signupSubmitText) {
-				signupSubmitText.textContent = 'Creating account...';
-			}
-		});
-	}
-</script>
+		if (signupForm && signupSubmit) {
+			signupForm.addEventListener('submit', function () {
+				signupSubmit.disabled = true;
+				signupSubmit.classList.add('opacity-70', 'cursor-not-allowed');
+				if (signupSubmitText) {
+					signupSubmitText.textContent = 'Creating account...';
+				}
+			});
+		}
+	</script>
 </body>
 
 </html>

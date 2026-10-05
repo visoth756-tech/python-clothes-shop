@@ -1,4 +1,27 @@
+async function post(url, data) {
+    const csrfToken = document.querySelector(
+        'meta[name="csrf-token"]'
+    )?.content;
+
+    const response = await fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken
+        },
+        body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+        throw new Error("Request failed");
+    }
+
+    return response.json();
+}
+
 document.addEventListener("DOMContentLoaded", function () {
+
+    // Add product to cart
     document.addEventListener("submit", async function (event) {
         const form = event.target;
         if (!form || !form.action || !form.action.includes("/cart/add")) {
@@ -50,6 +73,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     qtyInput.value = 1;
                 }
             } else {
+
+                // Show failure message
                 if (typeof showToast === "function") {
                     showToast(data.message || "Could not add item.", "danger");
                 }

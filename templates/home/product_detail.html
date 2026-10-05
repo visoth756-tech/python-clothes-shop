@@ -32,6 +32,7 @@
 			</div>
 
 			<form action="{{ url_for('cart.cart_add') }}" method="POST" class="product-detail__form">
+				<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 				<input type="hidden" name="product_id" value="{{ product.id }}">
 				<div class="qty-selector">
 					<label>Quantity</label>
