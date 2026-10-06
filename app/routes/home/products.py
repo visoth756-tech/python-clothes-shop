@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, jsonify, url_for
 from data.products import (
 	products,
 	get_product_by_id,
@@ -24,6 +24,18 @@ def products_page():
 		active_keyword=keyword,
 		search=search,
 	)
+
+
+@products_bp.route("/api/products")  # test CORS
+def api_products():
+	keyword = request.args.get("keyword", "").strip()
+	search = request.args.get("search", "").strip()
+	filtered = filter_products(products, keyword=keyword or None, search=search or None)
+	result = [
+		{**p, "imageUrl": url_for("static", filename=f"img/{p['image']}", _external=True)}
+		for p in filtered
+	]
+	return jsonify(result)
 
 
 @products_bp.route("/products/<product_id>")
