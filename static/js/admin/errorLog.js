@@ -54,13 +54,26 @@ function renderRows() {
         <div class="px-5 py-3 truncate">${log.endpoint ?? ''}</div>
         <div class="px-5 py-3">${log.method ?? ''}</div>
         <div class="px-5 py-3">${log.limit ?? ''}</div>
-        <div class="px-5 py-3 text-stone-500">${new Date(log.timestamp).toLocaleString()}</div>
+        <div class="px-5 py-3 text-stone-500">${formatTimestamp(log.timestamp)}</div>
       </div>
     `).join('');
   }
 
   count.textContent = errorLogList.length;
   plural.textContent = errorLogList.length === 1 ? '' : 's';
+}
+
+function formatTimestamp(timestamp) {
+  const date = new Date(timestamp + "+07:00");
+
+  return date.toLocaleString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true
+  }).replace("am", "AM").replace("pm", "PM");
 }
 
 async function getErrorLogs() {
@@ -70,13 +83,9 @@ async function getErrorLogs() {
 }
 
 async function initErrorLog() {
-  try {
-    errorLogList = await getErrorLogs();
-    console.log("errorLogList", errorLogList);   // log AFTER the await
-    renderRows();
-  } catch (err) {
-    console.error(err);
-  }
+  errorLogList = await getErrorLogs();
+  console.log("errorLogList", errorLogList);   // log AFTER the await
+  renderRows();
 }
 
 renderSidebar();

@@ -29,7 +29,7 @@ for bp in [
 	admin_error_log_bp
 ]:
 	limiter.limit(
-		"100 per minute",
+		"10 per minute",
 		key_func=admin_user_key
 	)(bp)
 

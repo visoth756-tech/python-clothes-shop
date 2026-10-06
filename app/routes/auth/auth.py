@@ -13,7 +13,7 @@ def login_page():
 
 
 @auth_bp.route("/login", methods=["POST"])
-@limiter.limit("3 per minute")
+@limiter.limit("5 per minute")
 def login():
 	if request.method == "POST":
 		username = request.form.get("username", "").strip()

@@ -1,5 +1,7 @@
 from datetime import timedelta
 from flask import Flask, render_template, request
+from flask_cors import CORS
+
 from app.extensions import db, migrate, limiter, csrf
 from app.config import DevelopmentConfig
 from app.models import RateLimitLog, User
@@ -17,6 +19,12 @@ def create_app(config_class=DevelopmentConfig):
 	)
 	
 	app.config.from_object(config_class)
+	
+	CORS(
+		app,
+		origins=["http://127.0.0.1:5500", "http://localhost:5500"],
+		supports_credentials=True
+	)
 	
 	app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=1440)
 	
@@ -46,7 +54,6 @@ def create_app(config_class=DevelopmentConfig):
 	
 	@app.errorhandler(429)
 	def too_many_requests(error):
-		
 		log = RateLimitLog(
 			ip_address=request.remote_addr,
 			endpoint=request.path,
