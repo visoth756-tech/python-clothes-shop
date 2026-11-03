@@ -7,3 +7,4 @@ auth_bp = Blueprint(
 )
 
 from . import auth
+from .jwt import jwt_bp

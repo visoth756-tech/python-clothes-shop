@@ -1,6 +1,7 @@
 from flask import Blueprint, session
 from app.extensions import limiter
 from app.extensions import get_remote_address
+from ..auth.decorators import admin_api_guard
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -32,6 +33,7 @@ for bp in [
 		"10 per minute",
 		key_func=admin_user_key
 	)(bp)
+	bp.before_request(admin_api_guard)
 
 from . import dashboard
 from . import categories

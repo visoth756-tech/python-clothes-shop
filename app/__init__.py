@@ -2,10 +2,11 @@ from datetime import timedelta
 from flask import Flask, render_template, request
 from flask_cors import CORS
 
-from app.extensions import db, migrate, limiter, csrf
+from app.extensions import db, migrate, limiter, csrf, jwt
 from app.config import DevelopmentConfig
 from app.models import RateLimitLog, User
 from app.routes import register_routes
+from app.routes.auth import jwt_bp
 from app.services.home.cart import get_cart, cart_count
 from app.services.telegram import send_telegram
 from data import format_price
@@ -33,6 +34,10 @@ def create_app(config_class=DevelopmentConfig):
 	migrate.init_app(app, db)
 	limiter.init_app(app)
 	csrf.init_app(app)
+	jwt.init_app(app)
+
+	# JWT auth uses Bearer tokens, so it must not require a CSRF token
+	csrf.exempt(jwt_bp)
 	
 	# Register routes
 	register_routes(app)

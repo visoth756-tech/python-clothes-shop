@@ -9,3 +9,4 @@ Flask-Limiter~=4.1.1
 Flask-WTF>=1.2.1
 requests~=2.34.2
 flask-cors~=6.0.5
+flask-jwt-extended>=4.7.1
