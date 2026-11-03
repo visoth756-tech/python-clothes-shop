@@ -1,5 +1,6 @@
 import {formatCapitalLetter} from "../shared/format.js";
 import {getUserThumbUrl} from "../api/user.js";
+import {logoutWithJWT} from "../api/auth.js";
 
 export function renderSidebar() {
   const sidebar = document.getElementById('sidebarNav');
@@ -113,10 +114,11 @@ function initCurrentUser() {
   }
 
   if (logoutBtn) {
-    logoutBtn.addEventListener("click", () => {
-      if (confirm("Are you sure you want to log out?")) {
-        window.location.href = window.LOGOUT_URL;
-      }
+    logoutBtn.addEventListener("click", async () => {
+      if (!confirm("Are you sure you want to log out?")) return;
+
+      await logoutWithJWT();
+      window.location.href = window.LOGOUT_URL;
     });
   }
 }

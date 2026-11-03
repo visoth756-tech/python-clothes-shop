@@ -13,6 +13,7 @@ def serialize_product(p):
 	return {
 		"id": p.id,
 		"name": p.name,
+		"description": p.description,
 		"price": p.price,
 		"qty": p.qty,
 		"category_id": p.category_id,
@@ -57,6 +58,15 @@ def _validate_product_name(name, product_id=None):
 		return None, "Product name already exists", 409
 	
 	return name, None, None
+
+
+def _parse_description(data):
+	description = (data.get("description") or "").strip()
+
+	if len(description) > 500:
+		return None, "Product description must be 500 characters or less"
+
+	return description, None
 
 
 def _validate_category(category_id):
@@ -110,18 +120,23 @@ def create_product():
 	category, error, status = _validate_category(data.get("category_id"))
 	if error:
 		return jsonify({"errors": error}), status
-	
+
+	description, error = _parse_description(data)
+	if error:
+		return jsonify({"errors": error}), 400
+
 	price, qty, error = _parse_price_qty(data)
 	if error:
 		return jsonify({"errors": error}), 400
-	
+
 	try:
 		image_path = save_product_image(request.files.get("image"))
 	except ValueError as e:
 		return jsonify({"errors": str(e)}), 400
-	
+
 	product = Product(
 		name=name,
+		description=description,
 		price=price,
 		qty=qty,
 		category_id=category.id,
@@ -159,11 +174,15 @@ def update_product(product_id):
 	category, error, status = _validate_category(data.get("category_id"))
 	if error:
 		return jsonify({"errors": error}), status
-	
+
+	description, error = _parse_description(data)
+	if error:
+		return jsonify({"errors": error}), 400
+
 	price, qty, error = _parse_price_qty(data)
 	if error:
 		return jsonify({"errors": error}), 400
-	
+
 	if request.files.get("image"):
 		try:
 			product.image = save_product_image(
@@ -174,6 +193,7 @@ def update_product(product_id):
 			return jsonify({"errors": str(e)}), 400
 	
 	product.name = name
+	product.description = description
 	product.price = price
 	product.qty = qty
 	product.category_id = category.id

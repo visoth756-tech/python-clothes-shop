@@ -1,3 +1,5 @@
+import {authHeaders} from "./token.js";
+
 const BASE_URL = "/admin/api/users";
 
 function getCsrfToken() {
@@ -22,13 +24,13 @@ export function getUserThumbUrl(user) {
 }
 
 export async function getUsers() {
-  const res = await fetch(BASE_URL);
+  const res = await fetch(BASE_URL, {headers: authHeaders()});
   if (!res.ok) throw new Error("Failed to fetch users");
   return res.json();
 }
 
 export async function getUserById(id) {
-  const res = await fetch(`${BASE_URL}/${id}`);
+  const res = await fetch(`${BASE_URL}/${id}`, {headers: authHeaders()});
   if (!res.ok) throw new Error("Failed to fetch user");
   return res.json();
 }
@@ -38,9 +40,9 @@ export async function createUser(formData) {
 
   const res = await fetch(BASE_URL, {
     method: "POST",
-    headers: {
+    headers: authHeaders({
       "X-CSRFTOKEN": csrfToken
-    },
+    }),
     body: formData,          // no Content-Type header — browser sets the multipart boundary itself
   });
   if (!res.ok) {
@@ -55,9 +57,9 @@ export async function updateUser(id, formData) {
 
   const res = await fetch(`${BASE_URL}/${id}`, {
     method: "PUT",
-    headers: {
+    headers: authHeaders({
       "X-CSRFTOKEN": csrfToken
-    },
+    }),
     body: formData,
   });
   if (!res.ok) {
@@ -72,9 +74,9 @@ export async function deleteUser(id) {
 
   const res = await fetch(`${BASE_URL}/${id}`, {
     method: "DELETE",
-    headers: {
+    headers: authHeaders({
       "X-CSRFTOKEN": csrfToken
-    }
+    })
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));

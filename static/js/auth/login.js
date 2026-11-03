@@ -1,4 +1,4 @@
-import { login } from "../api/auth.js";
+import {loginWithJWT} from "../api/auth.js";
 
 const togglePassword = document.getElementById('togglePassword');
 const togglePasswordIcon = document.getElementById('togglePasswordIcon');
@@ -51,18 +51,12 @@ if (form) {
     setSubmitting(true);
 
     try {
-      const user = await login(username, password);
-
-      localStorage.setItem("currentUser", JSON.stringify(user));
-
-      if (user.role === 'ADMIN') {
-        window.location.href = '../admin/dashboard.html';
-      } else {
-        window.location.href = '../home/index.html';
-      }
+      // Store the JWT first, then submit the form to establish the session
+      // the admin pages rely on.
+      await loginWithJWT(username, password);
+      form.submit();
     } catch (err) {
       showError(err.message || 'Invalid username or password');
-    } finally {
       setSubmitting(false);
     }
   });

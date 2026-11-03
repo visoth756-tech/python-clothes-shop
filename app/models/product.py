@@ -15,6 +15,11 @@ class Product(BaseDocument):
 		nullable=False,
 		unique = True
 	)
+
+	description = db.Column(
+		db.String(500),
+		nullable=True
+	)
 	
 	price = db.Column(
 		db.Numeric(12, 2),

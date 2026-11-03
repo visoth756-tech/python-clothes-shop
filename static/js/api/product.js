@@ -1,3 +1,5 @@
+import {authHeaders} from "./token.js";
+
 const BASE_URL = "/admin/api/products";
 
 function getCsrfToken() {
@@ -40,9 +42,9 @@ async function handleResponse(res) {
 export async function getProducts() {
   const res = await fetch(BASE_URL, {
     method: "GET",
-    headers: {
+    headers: authHeaders({
       "Accept": "application/json",
-    },
+    }),
   });
   return handleResponse(res);
 }
@@ -50,9 +52,9 @@ export async function getProducts() {
 export async function getByIdProduct(productId) {
   const res = await fetch(`${BASE_URL}/${productId}`, {
     method: "GET",
-    headers: {
+    headers: authHeaders({
       "Accept": "application/json"
-    },
+    }),
   });
   return handleResponse(res);
 }
@@ -75,9 +77,9 @@ export async function createProduct(data, imageFile) {
 
   const res = await fetch(BASE_URL, {
     method: "POST",
-    headers: {
+    headers: authHeaders({
       "X-CSRFTOKEN": csrfToken
-    },
+    }),
     body: body,
   });
   return handleResponse(res);
@@ -101,9 +103,9 @@ export async function updateProduct(productId, data, imageFile) {
 
   const res = await fetch(`${BASE_URL}/${productId}`, {
     method: "PUT",
-    headers: {
+    headers: authHeaders({
       "X-CSRFTOKEN": csrfToken
-    },
+    }),
     body: body,
   });
   return handleResponse(res);
@@ -114,10 +116,10 @@ export async function deleteProduct(productId) {
 
   const res = await fetch(`${BASE_URL}/${productId}`, {
     method: "DELETE",
-    headers: {
+    headers: authHeaders({
       "Accept": "application/json",
       "X-CSRFTOKEN": csrfToken
-    },
+    }),
   });
   return handleResponse(res);
 }

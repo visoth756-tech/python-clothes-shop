@@ -119,6 +119,11 @@
 				{% endif %}
 			{% endwith %}
 
+			<div id="formError" class="hidden mb-5 px-4 py-3 rounded-md bg-red-50 border border-red-200 text-red-700 text-xs">
+				<i class="fa-solid fa-circle-exclamation mr-1.5"></i>
+				<span id="formErrorText"></span>
+			</div>
+
 			<form id="loginForm" method="POST" action="{{ url_for('auth.login') }}" class="space-y-5">
 				<!-- CSRF token -->
 				<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -176,38 +181,7 @@
 
 </div>
 
-<script>
-  const togglePassword = document.getElementById('togglePassword');
-  const togglePasswordIcon = document.getElementById('togglePasswordIcon');
-  const passwordInput = document.getElementById('password');
-
-  if (togglePassword && passwordInput) {
-    togglePassword.addEventListener('click', () => {
-      const isHidden = passwordInput.type === 'password';
-      passwordInput.type = isHidden ? 'text' : 'password';
-      if (togglePasswordIcon) {
-        togglePasswordIcon.classList.toggle('fa-eye', !isHidden);
-        togglePasswordIcon.classList.toggle('fa-eye-slash', isHidden);
-      }
-      togglePassword.setAttribute('aria-pressed', String(isHidden));
-      togglePassword.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
-    });
-  }
-
-  const loginForm = document.getElementById('loginForm');
-  const loginSubmit = document.getElementById('loginSubmit');
-  const loginSubmitText = document.getElementById('loginSubmitText');
-
-  if (loginForm && loginSubmit) {
-    loginForm.addEventListener('submit', function () {
-      loginSubmit.disabled = true;
-      loginSubmit.classList.add('opacity-70', 'cursor-not-allowed');
-      if (loginSubmitText) {
-        loginSubmitText.textContent = 'Signing in...';
-      }
-    });
-  }
-</script>
+<script type="module" src="{{ url_for('static', filename='js/auth/login.js') }}"></script>
 </body>
 
 </html>

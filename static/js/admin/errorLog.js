@@ -1,5 +1,6 @@
 import {renderSidebar} from "../component/sidebar.js";
 import {renderHeader} from "../component/header.js";
+import {authHeaders} from "../api/token.js";
 
 const table = document.getElementById('table');
 const BASE_URL = "/admin/api/error-logs";
@@ -77,7 +78,7 @@ function formatTimestamp(timestamp) {
 }
 
 async function getErrorLogs() {
-  const res = await fetch(BASE_URL);
+  const res = await fetch(BASE_URL, {headers: authHeaders()});
   if (!res.ok) throw new Error("Failed to fetch error logs");
   return res.json();
 }

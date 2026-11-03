@@ -26,6 +26,7 @@ const form = document.getElementById('productForm');
 const title = document.getElementById('popupTitle');
 
 const nameInput = document.getElementById('productName');
+const descriptionInput = document.getElementById('productDescription');
 const priceInput = document.getElementById('productPrice');
 const categoryInput = document.getElementById('productCategory');
 const qtyInput = document.getElementById('productQty');
@@ -85,6 +86,7 @@ function openModal(id = null) {
     if (title) title.textContent = 'Edit Product';
 
     if (nameInput) nameInput.value = product.name || '';
+    if (descriptionInput) descriptionInput.value = product.description || '';
     if (categoryInput) categoryInput.value = product.category_id ?? '';
     if (priceInput) priceInput.value = product.price ?? '';
     if (qtyInput) qtyInput.value = product.qty ?? '';
@@ -247,6 +249,7 @@ function renderProducts() {
 
 async function handleSaveProduct() {
   const name = nameInput ? nameInput.value.trim() : '';
+  const description = descriptionInput ? descriptionInput.value.trim() : '';
   const price = priceInput ? priceInput.value : '0';
   const categoryId = categoryInput ? categoryInput.value : '';
   const qty = qtyInput ? qtyInput.value : '0';
@@ -258,6 +261,7 @@ async function handleSaveProduct() {
 
   const formData = new FormData();
   formData.append("name", name);
+  formData.append("description", description);
   formData.append("price", price);
   formData.append("category_id", categoryId);
   formData.append("qty", qty);

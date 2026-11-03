@@ -1,6 +1,8 @@
 from functools import wraps
 from flask import session, redirect, url_for, flash, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from jwt import InvalidTokenError
+from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity
+from flask_jwt_extended.exceptions import JWTExtendedException
 
 from app.models import User
 from app.models.enums import Role
@@ -41,14 +43,20 @@ def admin_required_api(view):
     return wrapped
 
 
-@jwt_required(optional=True)
 def admin_api_guard():
     """before_request guard for admin JSON blueprints.
 
     Accepts either an existing admin session (admin UI) or a valid admin JWT.
+    A bad/expired JWT is ignored so the session can still be used.
     Returns an error response to abort the request, or None to continue.
     """
-    user_id = get_jwt_identity()
+    user_id = None
+
+    try:
+        verify_jwt_in_request(optional=True)
+        user_id = get_jwt_identity()
+    except (JWTExtendedException, InvalidTokenError):
+        user_id = None
 
     if user_id:
         user = User.query.get(user_id)

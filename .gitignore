@@ -29,8 +29,9 @@ node_modules/
 .vscode/
 .idea/
 
+# Rayu
+.rayu/
+
 # OS
 .DS_Store
 Thumbs.db
-
-.rayu/
