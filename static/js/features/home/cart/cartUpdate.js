@@ -57,7 +57,9 @@ async function cartAction(productId, action) {
         }
     } catch (err) {
         console.error("Error updating cart:", err);
-        if (typeof window.toastError === "function") {
+        if (typeof window.showToast === "function") {
+            window.showToast(err.message || "Failed to update cart.", "danger");
+        } else if (typeof window.toastError === "function") {
             window.toastError(err && err.message ? err.message : "Failed to update cart.");
         }
     }

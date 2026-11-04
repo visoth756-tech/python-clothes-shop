@@ -12,6 +12,7 @@
 			<aside class="sidebar">
 				<h3>Filter</h3>
 				<form method="GET" action="{{ url_for('products.products_page') }}">
+					<input type="hidden" name="keyword" value="{{ active_keyword }}">
 					<div class="sidebar__search">
 						<input type="text" name="search" placeholder="Search..." value="{{ search }}" class="input">
 					</div>

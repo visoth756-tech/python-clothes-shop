@@ -1,3 +1,4 @@
+import {escapeHtml} from "../../../shared/html.js";
 import {renderHeader} from "../../../components/layout/header.js";
 import {renderSidebar} from "../../../components/layout/sidebar.js";
 import {openDeleteModal, closeDeleteModal} from "../../../components/modal/confirmDelete.js";
@@ -29,6 +30,12 @@ const title = document.getElementById('popupTitle');
 
 const nameInput = document.getElementById('productName');
 const descriptionInput = document.getElementById('productDescription');
+function updateDescriptionCount() {
+  const count = document.getElementById("descriptionCount");
+  if (count && descriptionInput) count.textContent = `${descriptionInput.value.length} / ${descriptionInput.maxLength}`;
+}
+descriptionInput?.addEventListener("input", updateDescriptionCount);
+
 const priceInput = document.getElementById('productPrice');
 const categoryInput = document.getElementById('productCategory');
 const qtyInput = document.getElementById('productQty');
@@ -66,7 +73,7 @@ function populateCategoryOptions() {
     <option value="">Select Category</option>
     ${categories.map(category => `
       <option value="${category.id}">
-        ${formatCapitalLetter(category.name)}
+        ${escapeHtml(formatCapitalLetter(category.name))}
       </option>
     `).join('')}
   `;
@@ -122,6 +129,7 @@ function openModal(id = null) {
     if (replaceImage) replaceImage.classList.add("hidden");
   }
 
+  updateDescriptionCount();
   if (modal) modal.classList.remove('hidden');
 }
 
@@ -136,6 +144,7 @@ function closeModal() {
   if (replaceImage) replaceImage.classList.add("hidden");
   if (inputImage) inputImage.value = "";
   editing = null;
+  updateDescriptionCount();
 }
 
 if (inputImage) {
@@ -204,17 +213,20 @@ function renderProducts() {
           ${product.image ? `
             <img src="${productThumbSrc(product.image)}"
                  class="w-10 h-10 rounded-md object-cover border border-stone-200"
-                 alt="${product.name}">
+                 alt="${escapeHtml(product.name)}">
           ` : `
             <div class="w-10 h-10 rounded-md bg-stone-100 border border-stone-200 flex items-center justify-center text-stone-400 shrink-0">
               <i class="fa-solid fa-box text-sm"></i>
             </div>
           `}
-          <span>${product.name}</span>
+          <div class="min-w-0">
+            <span>${escapeHtml(product.name)}</span>
+            <p class="text-xs text-stone-500 whitespace-pre-wrap break-words mt-1">${escapeHtml(product.description || 'No description')}</p>
+          </div>
         </div>
 
         <div class="px-5 py-4 text-stone-500">
-          ${getCategoryName(categoryId)}
+          ${escapeHtml(getCategoryName(categoryId))}
         </div>
 
         <div class="px-5 py-4 text-stone-500 text-center">
@@ -261,6 +273,14 @@ async function handleSaveProduct() {
     return;
   }
 
+  if (form && !form.reportValidity()) return;
+  if (descriptionInput && description.length > descriptionInput.maxLength) {
+    window.toastError(`Description must be ${descriptionInput.maxLength} characters or less.`);
+    return;
+  }
+  const saveButton = form?.querySelector('button[type="submit"]');
+  if (saveButton?.disabled) return;
+  if (saveButton) saveButton.disabled = true;
   const formData = new FormData();
   formData.append("name", name);
   formData.append("description", description);
@@ -288,6 +308,8 @@ async function handleSaveProduct() {
   } catch (error) {
     console.error('Error saving product:', error);
     window.toastError(error.message || MSG.error.saveFailed("product"));
+  } finally {
+    if (saveButton) saveButton.disabled = false;
   }
 }
 

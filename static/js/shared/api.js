@@ -45,6 +45,9 @@ export async function apiFetch(url, { method = "GET", json, formData, headers = 
 
   const res = await fetch(url, options);
 
+  if (res.redirected && new URL(res.url).pathname.includes("/login")) {
+    throw new Error("Your session expired. Please log in again.");
+  }
   const text = await res.text();
   let parsed = null;
   if (text) {

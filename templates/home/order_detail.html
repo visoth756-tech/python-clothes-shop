@@ -12,10 +12,9 @@
 
     <div class="order-detail">
         <div class="order-detail__section">
-            <h3>Delivery Details</h3>
-            <p>{{ order.name }}</p>
-            <p>{{ order.email }}</p>
-            <p>{{ order.address }}, {{ order.city }}</p>
+            <h3>Order Details</h3>
+            <p>{{ order.username }}</p>
+            <p>Status: {{ order.status }}</p>
             <p class="order-detail__date">Placed on {{ order.date }}</p>
         </div>
 
@@ -23,7 +22,7 @@
             <h3>Items</h3>
             {% for item in order['items'] %}
             <div class="order-summary__item">
-                <img src="{{ url_for('static', filename='img/' + item.image) }}"
+                <img src="{{ item.imageUrl }}"
                      alt="{{ item.name }}"
                      onerror="this.src='https://placehold.co/60x60?text=?'">
                 <div>
@@ -36,11 +35,16 @@
         </div>
 
         <div class="order-detail__total">
-            <span>Total Paid</span>
+            <span>Order Total</span>
             <span>{{ order.total }}</span>
         </div>
 
+        <div class="order-detail__section">
+            <h3>Payments</h3>
+            {% for payment in order.payments %}<p>{{ payment.method }} ? {{ payment.status }} ? ${{ '%.2f'|format(payment.amount) }}</p>{% endfor %}
+        </div>
         <div class="order-detail__actions">
+            <a href="{{ url_for('checkout.payment', order_id=order.id) }}" class="btn btn--primary">{{ 'View Payment' if order.paid else 'Continue Payment' }}</a>
             <a href="{{ url_for('orders.orders') }}" class="btn btn--outline">Back to Orders</a>
             <a href="{{ url_for('products.products_page') }}" class="btn btn--primary">Shop Again</a>
         </div>

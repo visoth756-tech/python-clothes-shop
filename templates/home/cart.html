@@ -16,7 +16,7 @@
         <div class="cart-items" id="cartItems">
             {% for item in items %}
             <div class="cart-item" data-id="{{ item.id }}">
-                <img src="{{ url_for('static', filename='img/' + item.image) }}" alt="{{ item.name }}"
+                <img src="{{ item.imageUrl }}" alt="{{ item.name }}"
                     onerror="this.src='https://placehold.co/100x100?text=?'">
                 <div class="cart-item__info">
                     <a href="{{ url_for('products.product_detail', product_id=item.id) }}" class="cart-item__name">

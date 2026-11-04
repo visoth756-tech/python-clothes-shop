@@ -27,7 +27,7 @@
 
 <!-- MODAL: Add/Edit -->
 <div id="productModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center">
-	<div class="bg-white rounded-lg p-6 w-full max-w-md">
+	<div class="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
 
 		<h2 id="popupTitle" class="text-lg font-semibold mb-4">Add</h2>
 
@@ -93,9 +93,11 @@
 					Description
 				</label>
 
-				<textarea id="productDescription" name="description" rows="3" maxlength="500"
-									placeholder="Optional"
+				<textarea id="productDescription" name="description" rows="4" maxlength="{{ description_max_length }}" aria-describedby="descriptionHint descriptionCount"
+									placeholder="Describe the product, material, fit, or care instructions"
 									class="w-full border border-stone-300 rounded-md px-3 py-2 text-sm"></textarea>
+                <p id="descriptionHint" class="text-xs text-stone-500">Optional. Up to {{ description_max_length }} characters.</p>
+                <p id="descriptionCount" class="text-xs text-stone-500" aria-live="polite">0 / {{ description_max_length }}</p>
 			</div>
 
 			<!-- Price + Category -->
@@ -115,7 +117,7 @@
 						Category *
 					</label>
 
-					<select id="productCategory" name="categoryId" required
+					<select id="productCategory" name="category_id" required
 									class="w-full border border-stone-300 rounded-md px-3 py-2 text-sm bg-white">
 						<option value="">Select</option>
 					</select>

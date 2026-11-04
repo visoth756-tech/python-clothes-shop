@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from app.extensions import db
 from . import admin_bp, admin_category_bp
 from ..auth.decorators import admin_required
-from ...models import Category, Product
+from ...models import Category
 
 
 def serialize_category(category):

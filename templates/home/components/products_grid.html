@@ -2,7 +2,7 @@
 	{% for product in products %}
 	<div class="product-card">
 		<a href="{{ url_for('products.product_detail', product_id=product.id) }}" class="product-card__img-wrap">
-			<img src="{{ url_for('static', filename='img/' + product.image) }}" alt="{{ product.name }}"
+			<img src="{{ product.imageUrl }}" alt="{{ product.name }}"
 				onerror="this.src='https://placehold.co/400x400?text=No+Image'">
 		</a>
 		<div class="product-card__body">
@@ -18,14 +18,15 @@
 						<button type="button" class="card-qty__btn card-qty__btn--minus"
 							aria-label="Decrease quantity">−
 						</button>
-						<input type="number" name="qty" class="card-qty__input" value="1" min="1" max="99" readonly>
+						<input type="number" name="qty" class="card-qty__input" value="1" min="1" max="{{ product.stock }}" readonly>
 						<button type="button" class="card-qty__btn card-qty__btn--plus" aria-label="Increase quantity">+
 						</button>
 					</div>
-					<button type="submit" class="btn btn--primary btn--sm product-card__btn">Add</button>
+					<button type="submit" class="btn btn--primary btn--sm product-card__btn" {{ "disabled" if product.stock < 1 }}>{{ "Add" if product.stock > 0 else "Out of Stock" }}</button>
 				</form>
 			</div>
 		</div>
 	</div>
+	{% else %}<p>No products available yet.</p>
 	{% endfor %}
 </div>

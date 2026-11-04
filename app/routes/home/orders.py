@@ -1,19 +1,17 @@
-from flask import Blueprint, render_template
-from app.services.home.order import get_order
+from flask import Blueprint, render_template, session
+from app.models import Order
+from app.routes.auth.decorators import login_required
+from app.services.home.order import owned_order, order_view
 
 orders_bp = Blueprint("orders", __name__)
 
-
 @orders_bp.route("/orders")
+@login_required
 def orders():
-	order = get_order()
-	order_list = [order] if order else []
-	return render_template("home/orders.html", orders=order_list)
-
+    orders = Order.query.filter_by(user_id=session["user_id"]).order_by(Order.created_at.desc()).all()
+    return render_template("home/orders.html", orders=[order_view(o) for o in orders])
 
 @orders_bp.route("/orders/<order_id>")
+@login_required
 def order_detail(order_id):
-	order = get_order()
-	if not order or order.get("id") != order_id:
-		return render_template("errors/404.html"), 404
-	return render_template("home/order_detail.html", order=order)
+    return render_template("home/order_detail.html", order=order_view(owned_order(order_id)))

@@ -1,6 +1,10 @@
 from datetime import timedelta
 from flask import Flask, render_template, request
 from flask_cors import CORS
+from dotenv import load_dotenv
+
+# Load runtime settings before config and payment modules read the environment.
+load_dotenv()
 
 from app.extensions import db, migrate, limiter, csrf, jwt
 from app.config import DevelopmentConfig
@@ -9,7 +13,7 @@ from app.routes import register_routes
 from app.routes.auth import jwt_bp
 from app.services.home.cart import get_cart, cart_count
 from app.services.telegram import send_telegram
-from data import format_price
+from app.services.home.catalog import format_price
 
 
 def create_app(config_class=DevelopmentConfig):
@@ -38,6 +42,14 @@ def create_app(config_class=DevelopmentConfig):
 
 	# JWT auth uses Bearer tokens, so it must not require a CSRF token
 	csrf.exempt(jwt_bp)
+
+	# User API accepts JWT (no CSRF) as well as session requests; session
+	# requests are still CSRF-checked inside api_user_guard.
+	from app.routes.home.api_orders import api_order_bp
+	from app.routes.home.api_payments import api_payment_bp
+
+	csrf.exempt(api_order_bp)
+	csrf.exempt(api_payment_bp)
 	
 	# Register routes
 	register_routes(app)

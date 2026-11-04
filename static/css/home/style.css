@@ -508,3 +508,28 @@ h3 { font-size: 1.1rem; font-weight: 600; }
         transform: translateY(0) scale(1);
     }
 }
+
+/* Database checkout and payment feedback. */
+#checkoutForm { margin: 28px 0; }
+#paymentPanel { margin: 28px 0; }
+#paymentQr { width: min(280px, 100%); height: auto; align-self: center; }
+#paymentError { color: #b91c1c; }
+.btn:disabled { opacity: .55; cursor: not-allowed; }
+
+/* Author display rules must not override the HTML hidden attribute. */
+[hidden] { display: none !important; }
+.payment-success { text-align: center; padding: 24px; color: #166534; background: #f0fdf4; border-radius: 16px; }
+.payment-success__icon { width: 72px; height: 72px; margin: 0 auto 16px; }
+.payment-success__ring { fill: none; stroke: #22c55e; stroke-width: 3; }
+.payment-success__tick { fill: none; stroke: #16a34a; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 50; stroke-dashoffset: 0; }
+.payment-success:not([hidden]) { animation: payment-appear .35s ease-out; }
+.payment-success:not([hidden]) .payment-success__tick { animation: payment-check .55s ease-out; }
+@keyframes payment-appear { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes payment-check { from { stroke-dashoffset: 50; } to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .payment-success:not([hidden]), .payment-success:not([hidden]) .payment-success__tick { animation: none; }
+}
+
+.product-detail__description { margin: 16px 0; }
+.product-detail__description h2 { font-size: 16px; margin-bottom: 8px; }
+.product-detail__description p { white-space: pre-wrap; overflow-wrap: anywhere; }

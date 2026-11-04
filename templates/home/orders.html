@@ -22,7 +22,7 @@
             </div>
             <div class="order-card__items">
                 {% for item in order['items'][:3] %}
-                <img src="{{ url_for('static', filename='img/' + item.image) }}"
+                <img src="{{ item.imageUrl }}"
                      alt="{{ item.name }}"
                      onerror="this.src='https://placehold.co/50x50?text=?'"
                      title="{{ item.name }}">

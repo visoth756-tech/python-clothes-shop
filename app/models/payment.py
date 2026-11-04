@@ -1,5 +1,5 @@
 from .base import BaseDocument
-from .enums import PaymentStatus
+from .enums import PaymentStatus, PaymentMethod
 from app.extensions import db
 
 
@@ -29,6 +29,37 @@ class Payment(BaseDocument):
 		default=PaymentStatus.PENDING
 	)
 	
+	method = db.Column(
+		db.Enum(PaymentMethod),
+		nullable=False,
+		default=PaymentMethod.CASH
+	)
+
+	transaction_id = db.Column(
+		db.String(255),
+		nullable=True
+	)
+
+	token = db.Column(
+		db.String(255),
+		nullable=True
+	)
+
+	token_expires_at = db.Column(
+		db.DateTime(timezone=True),
+		nullable=True
+	)
+
+	qr_data = db.Column(
+		db.Text,
+		nullable=True
+	)
+
+	paid_at = db.Column(
+		db.DateTime(timezone=True),
+		nullable=True
+	)
+
 	order = db.relationship(
 		"Order",
 		back_populates="payments"

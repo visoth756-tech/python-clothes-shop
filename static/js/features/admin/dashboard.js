@@ -1,3 +1,4 @@
+import {escapeHtml} from "../../shared/html.js";
 import {renderHeader} from "../../components/layout/header.js";
 import {renderSidebar} from "../../components/layout/sidebar.js";
 import {formatCapitalLetter, formatMoney, formatDate} from "../../shared/format.js";
@@ -134,7 +135,7 @@ function renderOrderRows() {
 
   container.innerHTML = pending.map(o => `
     <div class="grid ${orderGrid} bg-white border-b border-stone-100 hover:bg-stone-50 items-center">
-      <div class="px-4 py-3 font-medium">${formatCapitalLetter(o.username)}</div>
+      <div class="px-4 py-3 font-medium">${escapeHtml(formatCapitalLetter(o.username))}</div>
       <div class="px-4 py-3 text-center text-stone-500">${formatMoney(o.totalAmount)}</div>
       <div class="px-4 py-3 text-center">
         <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-700">
@@ -185,7 +186,7 @@ function renderProductStockRows() {
 
   container.innerHTML = lowStock.map(p => `
     <div class="grid ${stockGrid} bg-white border-b border-stone-100 hover:bg-stone-50 items-center">
-      <div class="px-4 py-3">${p.name}</div>
+      <div class="px-4 py-3">${escapeHtml(p.name)}</div>
       <div class="px-4 py-3 text-center">${p.qty}</div>
       <div class="px-4 py-3 text-center">
         ${getStockStatusBadge(p.qty)}
@@ -215,7 +216,7 @@ function replaceSection(id, html) {
 }
 
 function viewOrder(id) {
-  window.location.href = `orders.html?id=${id}`;
+  window.location.href = `/admin/orders?id=${encodeURIComponent(id)}`;
 }
 
 window.viewOrder = viewOrder;
@@ -223,51 +224,20 @@ window.viewOrder = viewOrder;
 async function initDashboard() {
   renderDashboardSkeleton();
 
-  listCategories()
-    .then(data => {
-      categories = data;
-    })
-    .catch(() => {
-      categories = [];
-    })
-    .finally(() => refreshStatCardsIfReady());
-
-  getPayments()
-    .then(data => {
-      paymentList = data;
-    })
-    .catch(() => {
-      paymentList = [];
-    })
-    .finally(() => refreshStatCardsIfReady());
-
-  getProducts()
-    .then(data => {
-      productList = data;
-      refreshStatCardsIfReady();
-      renderProductStockRows();
-    })
-    .catch(() => {
-      productList = [];
-      refreshStatCardsIfReady();
-      renderState("stockRows", {
-        error: MSG.error.loadFailed("products"),
-        retry: "initDashboard"
-      });
-    });
-
-  getOrders()
-    .then(data => {
-      orderList = data;
-      renderOrderRows();
-    })
-    .catch(() => {
-      orderList = [];
-      renderState("orderRows", {
-        error: MSG.error.loadFailed("orders"),
-        retry: "initDashboard"
-      });
-    });
+  const results = await Promise.allSettled([listCategories(), getProducts(), getOrders(), getPayments()]);
+  const [categoryResult, productResult, orderResult, paymentResult] = results;
+  categories = categoryResult.status === "fulfilled" ? categoryResult.value : [];
+  productList = productResult.status === "fulfilled" ? productResult.value : [];
+  orderList = orderResult.status === "fulfilled" ? orderResult.value : [];
+  paymentList = paymentResult.status === "fulfilled" ? paymentResult.value : [];
+  refreshStatCardsIfReady();
+  if ([categoryResult, productResult, paymentResult].some(result => result.status === "rejected")) {
+    document.getElementById("stat-cards").textContent = "Could not load dashboard totals. Refresh to retry.";
+  }
+  if (productResult.status === "fulfilled") renderProductStockRows();
+  else renderState("stockRows", {error: MSG.error.loadFailed("products"), retry: "initDashboard"});
+  if (orderResult.status === "fulfilled") renderOrderRows();
+  else renderState("orderRows", {error: MSG.error.loadFailed("orders"), retry: "initDashboard"});
 }
 
 window.initDashboard = initDashboard;

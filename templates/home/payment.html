@@ -1,72 +1,30 @@
 {% extends "home/base.html" %}
-{% block title %}Payment — ThreadShop{% endblock %}
-
-{% block extra_js %}
-<script src="{{ url_for('static', filename='js/features/home/payment.js') }}"></script>
-{% endblock %}
-
+{% block title %}Payment - ThreadShop{% endblock %}
+{% block extra_js %}<script type="module" src="{{ url_for('static', filename='js/features/home/payment.js') }}"></script>{% endblock %}
 {% block content %}
 <div class="container container--sm">
-    <div class="page-header">
-        <h1>Payment</h1>
-        <p>Order #{{ order.id }}</p>
+  <div class="page-header"><h1>Payment</h1><p>Order #{{ order.id }}</p></div>
+  {% set items = order['items'] %}{% set total = order.total %}
+  {% include "home/components/order_summary.html" %}
+  <section class="form-section" id="paymentPanel">
+    <div id="paymentSuccess" class="payment-success" role="status" aria-live="polite" {{ 'hidden' if not order.paid }}>
+      <svg class="payment-success__icon" viewBox="0 0 72 72" aria-hidden="true">
+        <circle class="payment-success__ring" cx="36" cy="36" r="32" />
+        <path class="payment-success__tick" d="M20 36l11 11 22-23" />
+      </svg>
+      <h2>Payment successful</h2>
+      <p id="paymentSuccessMessage">Your order is confirmed.</p>
     </div>
-
-    <div class="checkout-layout">
-        <form action="{{ url_for('checkout.payment_confirm') }}" method="POST" class="checkout-form">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <div class="form-section">
-                <h3>Card Details</h3>
-                <div class="form-group">
-                    <label for="card_name">Name on Card</label>
-                    <input type="text" id="card_name" name="card_name" class="input" value="{{ order.name }}" required>
-                </div>
-                <div class="form-group">
-                    <label for="card_number">Card Number</label>
-                    <input type="text" id="card_number" name="card_number" class="input"
-                        placeholder="1234 5678 9012 3456" maxlength="19" required>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="expiry">Expiry</label>
-                        <input type="text" id="expiry" name="expiry" class="input" placeholder="MM/YY" maxlength="5"
-                            required>
-                    </div>
-                    <div class="form-group">
-                        <label for="cvv">CVV</label>
-                        <input type="text" id="cvv" name="cvv" class="input" placeholder="123" maxlength="3" required>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-actions">
-                <button type="button" class="btn btn--outline btn--lg" id="btnAutofillPayment">⚡ Auto-fill</button>
-                <button type="submit" class="btn btn--primary btn--lg btn--flex">
-                    Pay {{ order.total }}
-                </button>
-            </div>
-        </form>
-
-        <div class="order-summary">
-            <h3>Order Summary</h3>
-            <div class="order-summary__items">
-                {% for item in order['items'] %}
-                <div class="order-summary__item">
-                    <img src="{{ url_for('static', filename='img/' + item.image) }}" alt="{{ item.name }}"
-                        onerror="this.src='https://placehold.co/60x60?text=?'">
-                    <div>
-                        <p class="order-summary__name">{{ item.name }}</p>
-                        <p class="order-summary__qty">Qty: {{ item.qty }}</p>
-                    </div>
-                    <span class="order-summary__price">{{ item.subtotal }}</span>
-                </div>
-                {% endfor %}
-            </div>
-            <div class="order-summary__total">
-                <span>Total</span>
-                <span>{{ order.total }}</span>
-            </div>
-        </div>
-    </div>
+    <h3>Payment Details</h3>
+    <p id="paymentStatus" role="status" aria-live="polite">{{ "PAID - Your order is confirmed." if order.paid else "Loading payment..." }}</p>
+    <p id="paymentError" role="alert"></p>
+    <img id="paymentQr" alt="Scan with your banking app to pay using Bakong" width="280" height="280" hidden>
+    <p id="paymentExpiry"></p>
+    <button type="button" class="btn btn--outline" id="checkPayment" hidden>Check Payment</button>
+    <button type="button" class="btn btn--primary" id="retryPayment" hidden>Retry Bakong Payment</button>
+  </section>
+  <script id="paymentData" type="application/json">{{ order.payments | tojson }}</script>
+  <script id="orderData" type="application/json">{{ order.id | tojson }}</script>
+  <a class="btn btn--outline" href="{{ url_for('orders.order_detail', order_id=order.id) }}">View Order</a>
 </div>
 {% endblock %}

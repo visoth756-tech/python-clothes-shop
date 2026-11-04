@@ -37,8 +37,8 @@ def _parse_price_qty(data):
 	if price <= 0:
 		return None, None, "Product price required"
 	
-	if qty <= 0:
-		return None, None, "Product qty required"
+	if qty < 0:
+		return None, None, "Product qty must be zero or greater"
 	
 	return price, qty, None
 
@@ -63,8 +63,8 @@ def _validate_product_name(name, product_id=None):
 def _parse_description(data):
 	description = (data.get("description") or "").strip()
 
-	if len(description) > 500:
-		return None, "Product description must be 500 characters or less"
+	if len(description) > Product.DESCRIPTION_MAX_LENGTH:
+		return None, f"Product description must be {Product.DESCRIPTION_MAX_LENGTH} characters or less"
 
 	return description, None
 
@@ -87,7 +87,8 @@ def _validate_category(category_id):
 def products():
 	return render_template(
 		"admin/products.html",
-		title="Products"
+		title="Products",
+		description_max_length=Product.DESCRIPTION_MAX_LENGTH
 	)
 
 
@@ -193,7 +194,8 @@ def update_product(product_id):
 			return jsonify({"errors": str(e)}), 400
 	
 	product.name = name
-	product.description = description
+	if "description" in data:
+		product.description = description
 	product.price = price
 	product.qty = qty
 	product.category_id = category.id

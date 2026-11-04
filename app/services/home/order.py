@@ -1,39 +1,17 @@
-import json
-import uuid
-from datetime import datetime
-from flask import request
-from data.products import format_price
+from flask import session
+from app.models import Order
+from app.services.orders import serialize_order
+from .catalog import product_data, format_price
 
 
-def get_order():
-	raw = request.cookies.get("order")
-	if not raw:
-		return None
-	try:
-		return json.loads(raw)
-	except (ValueError, TypeError):
-		return None
+def owned_order(order_id):
+    return Order.query.filter_by(id=order_id, user_id=session["user_id"]).first_or_404()
 
 
-def set_order(response, order):
-	response.set_cookie("order", json.dumps(order), max_age=60 * 60 * 24)
-	return response
-
-
-def clear_order(response):
-	response.delete_cookie("order")
-	return response
-
-
-def create_order_dict(form_data, items, total_cents):
-	return {
-		"id": str(uuid.uuid4())[:8].upper(),
-		"name": form_data.get("name"),
-		"email": form_data.get("email"),
-		"address": form_data.get("address"),
-		"city": form_data.get("city"),
-		"items": items,
-		"total": format_price(total_cents),
-		"total_cents": total_cents,
-		"date": datetime.now().strftime("%B %d, %Y"),
-	}
+def order_view(order):
+    data = serialize_order(order)
+    data.update(total=format_price(int(order.total_amount * 100)), date=order.created_at.strftime("%B %d, %Y"), paid=any(p["status"] == "PAID" for p in data["payments"]))
+    for item, model in zip(data["items"], order.items):
+        image = product_data(model.product)["imageUrl"] if model.product else ""
+        item.update(name=item["productName"], imageUrl=image, price=format_price(int(model.price * 100)), subtotal=format_price(int(model.subtotal * 100)))
+    return data

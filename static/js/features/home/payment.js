@@ -1,32 +1,61 @@
-document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById("card_number")?.addEventListener("input", function () {
-        this.value = this.value.replace(/\D/g, "").replace(/(.{4})/g, "$1 ").trim().slice(0, 19);
-    });
-
-    document.getElementById("expiry")?.addEventListener("input", function () {
-        this.value = this.value.replace(/\D/g, "").replace(/^(\d{2})(\d)/, "$1/$2").slice(0, 5);
-    });
-
-    document.getElementById("cvv")?.addEventListener("input", function () {
-        this.value = this.value.replace(/\D/g, "").slice(0, 3);
-    });
-
-    const autofillBtn = document.getElementById("btnAutofillPayment");
-    if (autofillBtn) {
-        autofillBtn.addEventListener("click", function () {
-            const cardName = document.getElementById("card_name");
-            const cardNumber = document.getElementById("card_number");
-            const expiry = document.getElementById("expiry");
-            const cvv = document.getElementById("cvv");
-
-            if (cardName && !cardName.value) cardName.value = "John Doe";
-            if (cardNumber) cardNumber.value = "4242 4242 4242 4242";
-            if (expiry) expiry.value = "12/28";
-            if (cvv) cvv.value = "888";
-
-            if (typeof showToast === "function") {
-                showToast("Payment details auto-filled!", "success");
-            }
-        });
-    }
+import {apiFetch} from "../../shared/api.js";
+const payments = JSON.parse(document.getElementById("paymentData").textContent);
+const orderId = JSON.parse(document.getElementById("orderData").textContent);
+let payment = payments.find(p => p.status === "PAID") || payments.find(p => p.status === "PENDING") || payments[payments.length - 1];
+const status = document.getElementById("paymentStatus");
+const error = document.getElementById("paymentError");
+const qr = document.getElementById("paymentQr");
+const check = document.getElementById("checkPayment");
+const retry = document.getElementById("retryPayment");
+const success = document.getElementById("paymentSuccess");
+const successMessage = document.getElementById("paymentSuccessMessage");
+let timer;
+let busy = false;
+function render() {
+  clearTimeout(timer);
+  qr.hidden = true;
+  check.hidden = true;
+  retry.hidden = true;
+  success.hidden = !payment || payment.status !== "PAID";
+  if (!payment) { status.textContent = "No payment found for this order."; return; }
+  status.textContent = `${payment.method}: ${payment.status}`;
+  if (payment.status === "PAID") {
+    successMessage.textContent = payment.method === "CASH"
+      ? "Cash payment completed. Your order is confirmed."
+      : "Bakong payment received. Your order is confirmed.";
+  }
+  const pending = payment.method === "BAKONG" && payment.status === "PENDING";
+  const mock = payment.qrData?.startsWith("MOCK-KHQR:");
+  qr.hidden = !pending || !payment.qrData || mock;
+  if (!qr.hidden) qr.src = `/api/payments/${encodeURIComponent(payment.id)}/qr?v=${encodeURIComponent(payment.tokenExpiresAt || "")}`;
+  check.hidden = !pending;
+  retry.hidden = payment.status !== "FAILED" || payment.method !== "BAKONG";
+  const expiry = document.getElementById("paymentExpiry");
+  expiry.textContent = mock ? "Test payment: a payable QR is unavailable." : pending && payment.tokenExpiresAt ? `QR expires: ${new Date(payment.tokenExpiresAt).toLocaleString()}` : "";
+  if (pending && !mock) timer = setTimeout(refresh, 5000);
+}
+async function refresh() {
+  if (busy || !payment) return;
+  clearTimeout(timer);
+  busy = true; check.disabled = true; error.textContent = "";
+  try {
+    payment = await apiFetch(`/api/payments/${encodeURIComponent(payment.id)}/status`);
+    render();
+  } catch (err) {
+    error.textContent = "Could not check payment. " + err.message + " Use Check Payment to retry.";
+  } finally { busy = false; check.disabled = false; }
+}
+check.addEventListener("click", refresh);
+retry.addEventListener("click", async () => {
+  if (busy) return;
+  busy = true; retry.disabled = true; error.textContent = "";
+  try {
+    payment = await apiFetch("/api/payments", {method: "POST", json: {order_id: orderId, payment_method: "BAKONG"}});
+    render();
+  } catch (err) { error.textContent = err.message; }
+  finally { busy = false; retry.disabled = false; }
 });
+qr.addEventListener("error", () => { error.textContent = "QR could not be loaded. Check Payment to retry."; });
+window.addEventListener("pagehide", () => clearTimeout(timer));
+render();
+if (payment?.method === "BAKONG" && payment.status === "PENDING") refresh();

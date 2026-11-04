@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", function () {
         } catch (err) {
             console.error("Error adding to cart:", err);
             if (typeof showToast === "function") {
-                showToast("Failed to add product to cart.", "danger");
+                showToast(err.message || "Failed to add product to cart.", "danger");
             }
         } finally {
             if (submitBtn) {
@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (btn.classList.contains("card-qty__btn--minus") || btn.textContent.trim() === "−" || btn.textContent.trim() === "-") {
             val = Math.max(1, val - 1);
         } else {
-            val = Math.min(99, val + 1);
+            val = Math.min(Number(input.max) || 1, val + 1);
         }
         input.value = val;
     });

@@ -1,0 +1,11 @@
+<div class="order-summary">
+<h3>Order Summary</h3>
+{% for item in items %}
+<div class="order-summary__item">
+  <img src="{{ item.imageUrl }}" alt="{{ item.name }}" onerror="this.onerror=null;this.src='https://placehold.co/60x60?text=?'">
+  <div><p class="order-summary__name">{{ item.name }}</p><p>Qty: {{ item.qty }}</p></div>
+  <span>{{ item.subtotal }}</span>
+</div>
+{% endfor %}
+<div class="order-summary__total"><span>Total</span><span>{{ total }}</span></div>
+</div>

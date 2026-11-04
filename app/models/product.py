@@ -4,6 +4,7 @@ from app.extensions import db
 
 class Product(BaseDocument):
 	__tablename__ = "products"
+	DESCRIPTION_MAX_LENGTH = 500
 	
 	image = db.Column(
 		db.String(500),
@@ -17,7 +18,7 @@ class Product(BaseDocument):
 	)
 
 	description = db.Column(
-		db.String(500),
+		db.String(DESCRIPTION_MAX_LENGTH),
 		nullable=True
 	)
 	

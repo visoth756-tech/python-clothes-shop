@@ -4,13 +4,16 @@ import enum
 class OrderStatus(enum.Enum):
 	PENDING = "PENDING"
 	CONFIRMED = "CONFIRMED"
-	CANCELLED = "CANCELLED"
-
 
 class PaymentStatus(enum.Enum):
 	PENDING = "PENDING"
 	PAID = "PAID"
 	FAILED = "FAILED"
+
+
+class PaymentMethod(enum.Enum):
+	CASH = "CASH"
+	BAKONG = "BAKONG"
 
 
 class Role(enum.Enum):

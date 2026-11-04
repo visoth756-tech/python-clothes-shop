@@ -1,22 +1,9 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const autofillBtn = document.getElementById("btnAutofillCheckout");
-    if (autofillBtn) {
-        autofillBtn.addEventListener("click", function () {
-            const nameInput = document.getElementById("name");
-            const emailInput = document.getElementById("email");
-            const addressInput = document.getElementById("address");
-            const cityInput = document.getElementById("city");
-            const zipInput = document.getElementById("zip");
-
-            if (nameInput) nameInput.value = "John Doe";
-            if (emailInput) emailInput.value = "john.doe@example.com";
-            if (addressInput) addressInput.value = "742 Evergreen Terrace";
-            if (cityInput) cityInput.value = "Springfield";
-            if (zipInput) zipInput.value = "97477";
-
-            if (typeof showToast === "function") {
-                showToast("Checkout details auto-filled!", "success");
-            }
-        });
-    }
+document.getElementById("checkoutForm")?.addEventListener("submit", event => {
+  const button = event.currentTarget.querySelector('button[type="submit"]');
+  button.disabled = true;
+  document.getElementById("checkoutStatus").textContent = "Creating your order?";
+});
+window.addEventListener("pageshow", () => {
+  const button = document.querySelector('#checkoutForm button[type="submit"]');
+  if (button) button.disabled = false;
 });
