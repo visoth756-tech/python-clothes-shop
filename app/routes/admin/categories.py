@@ -65,7 +65,7 @@ def api_create_category():
 	name, error, status = validate_category_name(data.get("name"))
 	
 	if error:
-		return jsonify({"error": error}), status
+		return jsonify({"errors": error}), status
 	
 	category = Category(name=name)
 	db.session.add(category)

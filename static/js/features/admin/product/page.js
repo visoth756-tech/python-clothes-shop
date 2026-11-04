@@ -1,10 +1,12 @@
-import {listCategories} from "../api/category.js";
-import {getProducts, createProduct, updateProduct, deleteProduct} from "../api/product.js";
-import {renderHeader} from "../component/header.js";
-import {renderSidebar} from "../component/sidebar.js";
-import {formatCapitalLetter, formatMoney} from "../shared/format.js";
-import {getStockStatusBadge} from "./util.js";
-import {closeDeleteModal, getDeletingId, openDeleteModal} from "../component/popupConfrimDelete.js";
+import {renderHeader} from "../../../components/layout/header.js";
+import {renderSidebar} from "../../../components/layout/sidebar.js";
+import {openDeleteModal, closeDeleteModal} from "../../../components/modal/confirmDelete.js";
+import {MSG} from "../../../shared/messages.js";
+import {renderState} from "../../../shared/states.js";
+import {formatCapitalLetter, formatMoney} from "../../../shared/format.js";
+import {getStockStatusBadge} from "./stockBadge.js";
+import {listCategories} from "../category/api.js";
+import {getProducts, createProduct, updateProduct, deleteProduct} from "./api.js";
 
 const PRODUCTS = {
   header: [
@@ -255,7 +257,7 @@ async function handleSaveProduct() {
   const qty = qtyInput ? qtyInput.value : '0';
 
   if (!name || !categoryId) {
-    alert('Please provide a name and category.');
+    window.toastError('Please provide a name and category.');
     return;
   }
 
@@ -273,8 +275,10 @@ async function handleSaveProduct() {
   try {
     if (editing === null) {
       await createProduct(formData);
+      window.toastSuccess(MSG.success.productCreated);
     } else {
       await updateProduct(editing, formData);
+      window.toastSuccess(MSG.success.productUpdated);
     }
 
     closeModal();
@@ -283,22 +287,23 @@ async function handleSaveProduct() {
 
   } catch (error) {
     console.error('Error saving product:', error);
-    alert(error.message || 'Failed to save product');
+    window.toastError(error.message || MSG.error.saveFailed("product"));
   }
 }
 
-async function handleDeleteProduct() {
-  const id = getDeletingId();
-  if (id === null) return;
+async function handleDeleteProduct(id) {
+  const targetId = id;
+  if (targetId === null || targetId === undefined) return;
 
   try {
-    await deleteProduct(id);
+    await deleteProduct(targetId);
     product_list = await getProducts();
     renderProducts();
     closeDeleteModal();
+    window.toastSuccess(MSG.success.productDeleted);
   } catch (error) {
     console.error('Error deleting product:', error);
-    alert(error.message || 'Failed to delete product');
+    window.toastError(error.message || MSG.error.deleteFailed("product"));
   }
 }
 
@@ -314,23 +319,39 @@ document.addEventListener("click", (e) => {
 
   if (!button) return;
 
-  openDeleteModal(button.dataset.productId);
+  const id = button.dataset.productId;
+  const product = product_list.find(p => String(p.id) === String(id));
+
+  openDeleteModal({
+    id,
+    name: product ? product.name : "",
+    onConfirm: (deletedId) => handleDeleteProduct(deletedId)
+  });
 });
 
 window.openModal = openModal;
 window.closeModal = closeModal;
-window.confirmDelete = handleDeleteProduct;
 window.closeDeleteModal = closeDeleteModal;
 
 async function initProducts() {
-  categories = await listCategories();
-  product_list = await getProducts();
+  renderState("productRows", {loading: true});
 
-  renderProducts();
+  try {
+    categories = await listCategories();
+    product_list = await getProducts();
+    renderProducts();
+  } catch (error) {
+    console.error('Error loading products:', error);
+    renderState("productRows", {
+      error: MSG.error.loadFailed("products"),
+      retry: "initProducts"
+    });
+  }
 }
+
+window.initProducts = initProducts;
 
 renderSidebar();
 renderHeader("products");
 renderHeaderTable();
 initProducts();
-

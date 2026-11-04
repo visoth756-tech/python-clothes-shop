@@ -23,10 +23,10 @@
 {% include "home/components/footer.html" %}
 {% include "layouts/data.html" %}
 
-<script src="{{ url_for('static', filename='js/home/core/api.js') }}"></script>
-<script src="{{ url_for('static', filename='js/home/main.js') }}"></script>
-<script src="{{ url_for('static', filename='js/home/pages/navbar.js') }}"></script>
-<script src="{{ url_for('static', filename='js/home/cart/cart_add.js') }}"></script>
+<script src="{{ url_for('static', filename='js/shared/toast.js') }}"></script>
+<script src="{{ url_for('static', filename='js/features/home/bootstrap.js') }}"></script>
+<script src="{{ url_for('static', filename='js/features/home/navbar.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/features/home/cart/cartAdd.js') }}"></script>
 {% block extra_js %}{% endblock %}
 </body>
 </html>

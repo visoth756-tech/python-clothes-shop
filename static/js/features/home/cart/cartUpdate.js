@@ -1,4 +1,8 @@
+import { post } from "./api.js";
+
 function updateCartUI(data, productId, action) {
+    if (!data || typeof data !== "object") return;
+
     // Update navbar badge
     const badge = document.getElementById("cartBadge");
     if (badge) {
@@ -22,8 +26,9 @@ function updateCartUI(data, productId, action) {
         return;
     }
 
-    // Find updated item in response
-    const item = data.items.find(i => i.id === productId);
+    // Find updated item in response (guard against a missing items array)
+    const items = Array.isArray(data.items) ? data.items : [];
+    const item = items.find(i => i.id === productId);
     if (!item) {
         const row = document.querySelector(`.cart-item[data-id="${productId}"]`);
         if (row) row.remove();
@@ -37,3 +42,27 @@ function updateCartUI(data, productId, action) {
     const subtotalEl = document.getElementById(`subtotal-${productId}`);
     if (subtotalEl) subtotalEl.textContent = item.subtotal;
 }
+
+async function cartAction(productId, action) {
+    try {
+        const data = await post("/api/cart/update", {
+            product_id: productId,
+            action: action
+        });
+
+        updateCartUI(data, productId, action);
+
+        if (typeof window.toastSuccess === "function") {
+            window.toastSuccess("Cart updated.");
+        }
+    } catch (err) {
+        console.error("Error updating cart:", err);
+        if (typeof window.toastError === "function") {
+            window.toastError(err && err.message ? err.message : "Failed to update cart.");
+        }
+    }
+}
+
+// templates/home/cart.html calls cartAction(...) from inline onclick handlers.
+window.cartAction = cartAction;
+window.updateCartUI = updateCartUI;

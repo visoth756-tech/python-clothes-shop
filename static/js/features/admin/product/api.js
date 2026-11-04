@@ -1,12 +1,7 @@
-import {authHeaders} from "./token.js";
+import {authHeaders} from "../../../shared/tokens.js";
+import {getCsrfToken, apiErrorMessage} from "../../../shared/api.js";
 
 const BASE_URL = "/admin/api/products";
-
-function getCsrfToken() {
-  return document.querySelector(
-    '#productForm input[name="csrf_token"]'
-  ).value;
-}
 
 function getThumbFilename(filename) {
   if (!filename) return null;
@@ -32,8 +27,7 @@ async function handleResponse(res) {
   }
 
   if (!res.ok) {
-    const message = (body && body.error) || `Request failed with status ${res.status}`;
-    throw new Error(message);
+    throw new Error(apiErrorMessage(body, `Request failed with status ${res.status}`));
   }
 
   return body;
@@ -59,26 +53,26 @@ export async function getByIdProduct(productId) {
   return handleResponse(res);
 }
 
-export async function createProduct(data, imageFile) {
-  const csrfToken = getCsrfToken();
-
-  let body = data;
-  if (!(data instanceof FormData)) {
-    const formData = new FormData();
-    formData.append("name", data.name ?? "");
-    formData.append("price", data.price ?? 0);
-    formData.append("qty", data.qty ?? 0);
-    formData.append("category_id", data.category_id ?? data.categoryId ?? "");
-    if (imageFile || data.image) {
-      formData.append("image", imageFile || data.image);
-    }
-    body = formData;
+function buildProductFormData(data, imageFile) {
+  const formData = new FormData();
+  formData.append("name", data.name ?? "");
+  formData.append("description", data.description ?? "");
+  formData.append("price", data.price ?? 0);
+  formData.append("qty", data.qty ?? 0);
+  formData.append("category_id", data.category_id ?? data.categoryId ?? "");
+  if (imageFile || data.image) {
+    formData.append("image", imageFile || data.image);
   }
+  return formData;
+}
+
+export async function createProduct(data, imageFile) {
+  const body = data instanceof FormData ? data : buildProductFormData(data, imageFile);
 
   const res = await fetch(BASE_URL, {
     method: "POST",
     headers: authHeaders({
-      "X-CSRFTOKEN": csrfToken
+      "X-CSRFToken": getCsrfToken()
     }),
     body: body,
   });
@@ -86,25 +80,12 @@ export async function createProduct(data, imageFile) {
 }
 
 export async function updateProduct(productId, data, imageFile) {
-  const csrfToken = getCsrfToken();
-
-  let body = data;
-  if (!(data instanceof FormData)) {
-    const formData = new FormData();
-    formData.append("name", data.name ?? "");
-    formData.append("price", data.price ?? 0);
-    formData.append("qty", data.qty ?? 0);
-    formData.append("category_id", data.category_id ?? data.categoryId ?? "");
-    if (imageFile || data.image) {
-      formData.append("image", imageFile || data.image);
-    }
-    body = formData;
-  }
+  const body = data instanceof FormData ? data : buildProductFormData(data, imageFile);
 
   const res = await fetch(`${BASE_URL}/${productId}`, {
     method: "PUT",
     headers: authHeaders({
-      "X-CSRFTOKEN": csrfToken
+      "X-CSRFToken": getCsrfToken()
     }),
     body: body,
   });
@@ -112,13 +93,11 @@ export async function updateProduct(productId, data, imageFile) {
 }
 
 export async function deleteProduct(productId) {
-  const csrfToken = getCsrfToken();
-
   const res = await fetch(`${BASE_URL}/${productId}`, {
     method: "DELETE",
     headers: authHeaders({
       "Accept": "application/json",
-      "X-CSRFTOKEN": csrfToken
+      "X-CSRFToken": getCsrfToken()
     }),
   });
   return handleResponse(res);

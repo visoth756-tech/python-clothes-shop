@@ -25,11 +25,10 @@
 	</div>
 </div>
 
-<!-- MODAL: Add/Edit -->
-
 {% include "layouts/data.html" %}
- 
-<script type="module" src="{{ url_for('static', filename='js/admin/dashboard.js') }}"></script>
+
+<script src="{{ url_for('static', filename='js/shared/toast.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/features/admin/dashboard.js') }}"></script>
 
 </body>
 

@@ -13,4 +13,4 @@ def index():
 
 @main_bp.app_errorhandler(404)
 def not_found(e):
-	return render_template("home/404.html"), 404
+	return render_template("errors/404.html"), 404

@@ -1,8 +1,10 @@
-import {getUsers, createUser, updateUser, deleteUser} from "../api/user.js";
-import {renderHeader} from "../component/header.js";
-import {renderSidebar} from "../component/sidebar.js";
-import {formatCapitalLetter, formatDate} from "../shared/format.js";
-import {closeDeleteModal, getDeletingId, openDeleteModal} from "../component/popupConfrimDelete.js";
+import {renderHeader} from "../../../components/layout/header.js";
+import {renderSidebar} from "../../../components/layout/sidebar.js";
+import {openDeleteModal, closeDeleteModal} from "../../../components/modal/confirmDelete.js";
+import {MSG} from "../../../shared/messages.js";
+import {renderState} from "../../../shared/states.js";
+import {formatCapitalLetter, formatDate} from "../../../shared/format.js";
+import {getUsers, createUser, updateUser, deleteUser} from "./api.js";
 
 const USERS = {
   header: [
@@ -181,7 +183,7 @@ function renderUsers() {
              alt="${u.username}"
              onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}';">
       </div>
-      
+
       <div class="px-5 py-4 font-medium">
         ${u.username}
       </div>
@@ -203,7 +205,7 @@ function renderUsers() {
           class="flex items-center text-stone-400 hover:text-blue-600 p-1.5 rounded hover:bg-stone-100 cursor-pointer">
           <i class="fa-solid fa-pen"></i>Upt
         </button>
-        <button type="button" 
+        <button type="button"
           data-user-id="${u.id}"
           class="delete-user flex items-center text-stone-400 hover:text-red-600 p-1.5 rounded hover:bg-red-50 cursor-pointer ml-1">
           <i class="fa-solid fa-trash"></i>Del
@@ -233,12 +235,14 @@ if (form) {
     try {
       if (editing) {
         await updateUser(editing, formData);
+        window.toastSuccess(MSG.success.userUpdated);
       } else {
         if (!password || !password.value) {
-          alert("Password is required for new users.");
+          window.toastError("Password is required for new users.");
           return;
         }
         await createUser(formData);
+        window.toastSuccess(MSG.success.userCreated);
       }
 
       closeModal();
@@ -246,22 +250,23 @@ if (form) {
 
     } catch (error) {
       console.error('Error saving user:', error);
-      alert(error.message || 'Failed to save user');
+      window.toastError(error.message || MSG.error.saveFailed("user"));
     }
   });
 }
 
-async function handleDeleteUser() {
-  const id = getDeletingId();
-  if(id === null) return;
+async function handleDeleteUser(id) {
+  const targetId = id;
+  if (targetId === null || targetId === undefined) return;
 
   try {
-    await deleteUser(id);
+    await deleteUser(targetId);
     await initUsers();
     closeDeleteModal();
+    window.toastSuccess(MSG.success.userDeleted);
   } catch (error) {
     console.error('Error deleting user:', error);
-    alert(error.message || 'Failed to delete user');
+    window.toastError(error.message || MSG.error.deleteFailed("user"));
   }
 }
 
@@ -270,18 +275,36 @@ document.addEventListener("click", (e) => {
 
   if (!button) return;
 
-  openDeleteModal(button.dataset.userId);
+  const id = button.dataset.userId;
+  const user = userList.find(u => String(u.id) === String(id));
+
+  openDeleteModal({
+    id,
+    name: user ? user.username : "",
+    onConfirm: (deletedId) => handleDeleteUser(deletedId)
+  });
 });
 
 window.openModal = openModal;
 window.closeModal = closeModal;
-window.confirmDelete = handleDeleteUser;
 window.closeDeleteModal = closeDeleteModal;
 
 async function initUsers() {
-  userList = await getUsers();
-  renderUsers();
+  renderState("userRows", {loading: true});
+
+  try {
+    userList = await getUsers();
+    renderUsers();
+  } catch (error) {
+    console.error('Error loading users:', error);
+    renderState("userRows", {
+      error: MSG.error.loadFailed("users"),
+      retry: "initUsers"
+    });
+  }
 }
+
+window.initUsers = initUsers;
 
 renderSidebar();
 renderHeader("users");

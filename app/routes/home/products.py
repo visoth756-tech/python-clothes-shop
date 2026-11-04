@@ -42,7 +42,7 @@ def api_products():
 def product_detail(product_id):
 	product = get_product_by_id(products, product_id)
 	if not product:
-		return render_template("home/404.html"), 404
+		return render_template("errors/404.html"), 404
 	related = get_related_products(products, product)
 	return render_template(
 		"home/product_detail.html",

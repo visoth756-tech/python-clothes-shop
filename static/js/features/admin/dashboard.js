@@ -1,11 +1,13 @@
-import {listCategories} from "../api/category.js";
-import {getProducts} from "../api/product.js";
-import {getOrders} from "../api/order.js";
-import {getPayments} from "../api/payment.js";
-import {renderHeader} from "../component/header.js";
-import {renderSidebar} from "../component/sidebar.js";
-import {formatCapitalLetter, formatMoney, formatDate} from "../shared/format.js";
-import {getStockStatusBadge} from "./util.js";
+import {renderHeader} from "../../components/layout/header.js";
+import {renderSidebar} from "../../components/layout/sidebar.js";
+import {formatCapitalLetter, formatMoney, formatDate} from "../../shared/format.js";
+import {renderState} from "../../shared/states.js";
+import {MSG} from "../../shared/messages.js";
+import {getStockStatusBadge} from "./product/stockBadge.js";
+import {listCategories} from "./category/api.js";
+import {getProducts} from "./product/api.js";
+import {getOrders} from "../../api/order.js";
+import {getPayments} from "../../api/payment.js";
 
 const ORDERS = {
   header: [
@@ -114,51 +116,40 @@ function renderOrderSkeleton() {
       <div class="grid ${orderGrid} bg-stone-50 border-b border-stone-200">
         ${headerHtml}<div></div>
       </div>
-      ${renderSpinner()}
+      <div id="orderRows">${renderSpinner()}</div>
     </div>
   `;
 }
 
-function renderOrder() {
+function renderOrderRows() {
+  const container = document.getElementById('orderRows');
+  if (!container) return;
+
   const pending = orderList.filter(o => o.status === 'PENDING');
 
-  const headerHtml = ORDERS.header
-    .map(h => `
-      <div class="px-4 py-2 text-xs font-bold font-mono uppercase tracking-wide ${h.class ?? ''}">
-        ${h.name}
-      </div>
-    `).join('');
+  if (!pending.length) {
+    container.innerHTML = `<div class="text-center text-stone-400 py-6 text-sm">No pending orders</div>`;
+    return;
+  }
 
-  const rowsHtml = pending.length
-    ? pending.map(o => `
-        <div class="grid ${orderGrid} bg-white border-b border-stone-100 hover:bg-stone-50 items-center">
-          <div class="px-4 py-3 font-medium">${formatCapitalLetter(o.username)}</div>
-          <div class="px-4 py-3 text-center text-stone-500">${formatMoney(o.totalAmount)}</div>
-          <div class="px-4 py-3 text-center">
-            <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-700">
-              ${o.status}
-            </span>
-          </div>
-          <div class="px-4 py-3 text-center text-stone-500">${formatDate(o.createdAt ?? o.date)}</div>
-          <div class="px-4 py-3 text-center">
-            <button type="button" onclick="viewOrder('${o.id}')"
-              class="text-stone-400 hover:text-blue-600 p-1.5 rounded hover:bg-stone-100">
-              <i class="fa-solid fa-eye"></i>
-            </button>
-          </div>
-        </div>
-      `).join('')
-    : `<div class="text-center text-stone-400 py-6 text-sm">No pending orders</div>`;
-
-  return `
-    <div class="bg-white rounded-xl shadow p-5 border border-stone-100" id="order-card">
-      <h2 class="font-semibold text-lg mb-4 text-ink">Pending Orders</h2>
-      <div class="grid ${orderGrid} bg-stone-50 border-b border-stone-200">
-        ${headerHtml}<div></div>
+  container.innerHTML = pending.map(o => `
+    <div class="grid ${orderGrid} bg-white border-b border-stone-100 hover:bg-stone-50 items-center">
+      <div class="px-4 py-3 font-medium">${formatCapitalLetter(o.username)}</div>
+      <div class="px-4 py-3 text-center text-stone-500">${formatMoney(o.totalAmount)}</div>
+      <div class="px-4 py-3 text-center">
+        <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-700">
+          ${o.status}
+        </span>
       </div>
-      ${rowsHtml}
+      <div class="px-4 py-3 text-center text-stone-500">${formatDate(o.createdAt ?? o.date)}</div>
+      <div class="px-4 py-3 text-center">
+        <button type="button" onclick="viewOrder('${o.id}')"
+          class="text-stone-400 hover:text-blue-600 p-1.5 rounded hover:bg-stone-100">
+          <i class="fa-solid fa-eye"></i>
+        </button>
+      </div>
     </div>
-  `;
+  `).join('');
 }
 
 // ===== OUT OF STOCK =====
@@ -172,46 +163,35 @@ function renderProductStockSkeleton() {
 
   return `
     <div class="bg-white rounded-xl shadow p-5 border border-stone-100" id="stock-card">
-      <h2 class="font-semibold text-lg mb-4 text-ink">Out of Stock</h2>
-      <div class="grid ${stockGrid} bg-stone-50 border-b border-stone-200">
-        ${headerHtml}
-      </div>
-      ${renderSpinner()}
-    </div>
-  `;
-}
-
-function renderProductStock() {
-  const lowStock = productList.filter(p => p.qty <= 10);
-
-  const headerHtml = STOCKS.header
-    .map(h => `
-      <div class="px-4 py-2 text-xs font-bold font-mono uppercase tracking-wide ${h.class ?? ''}">
-        ${h.name}
-      </div>
-    `).join('');
-
-  const rowsHtml = lowStock.length
-    ? lowStock.map(p => `
-        <div class="grid ${stockGrid} bg-white border-b border-stone-100 hover:bg-stone-50 items-center">
-          <div class="px-4 py-3">${p.name}</div>
-          <div class="px-4 py-3 text-center">${p.qty}</div>
-          <div class="px-4 py-3 text-center">
-            ${getStockStatusBadge(p.qty)}
-          </div>
-        </div>
-      `).join('')
-    : `<div class="text-center text-stone-400 py-6 text-sm">Nothing out of stock</div>`;
-
-  return `
-    <div class="bg-white rounded-xl shadow p-5 border border-stone-100" id="stock-card">
       <h2 class="font-semibold text-lg mb-4 text-ink">Stock Control</h2>
       <div class="grid ${stockGrid} bg-stone-50 border-b border-stone-200">
         ${headerHtml}
       </div>
-      ${rowsHtml}
+      <div id="stockRows">${renderSpinner()}</div>
     </div>
   `;
+}
+
+function renderProductStockRows() {
+  const container = document.getElementById('stockRows');
+  if (!container) return;
+
+  const lowStock = productList.filter(p => p.qty <= 10);
+
+  if (!lowStock.length) {
+    container.innerHTML = `<div class="text-center text-stone-400 py-6 text-sm">Nothing out of stock</div>`;
+    return;
+  }
+
+  container.innerHTML = lowStock.map(p => `
+    <div class="grid ${stockGrid} bg-white border-b border-stone-100 hover:bg-stone-50 items-center">
+      <div class="px-4 py-3">${p.name}</div>
+      <div class="px-4 py-3 text-center">${p.qty}</div>
+      <div class="px-4 py-3 text-center">
+        ${getStockStatusBadge(p.qty)}
+      </div>
+    </div>
+  `).join('');
 }
 
 // ===== MOUNT =====
@@ -265,24 +245,32 @@ async function initDashboard() {
     .then(data => {
       productList = data;
       refreshStatCardsIfReady();
-      replaceSection('stock-card', renderProductStock());
+      renderProductStockRows();
     })
     .catch(() => {
       productList = [];
       refreshStatCardsIfReady();
-      replaceSection('stock-card', renderProductStock());
+      renderState("stockRows", {
+        error: MSG.error.loadFailed("products"),
+        retry: "initDashboard"
+      });
     });
 
   getOrders()
     .then(data => {
       orderList = data;
-      replaceSection('order-card', renderOrder());
+      renderOrderRows();
     })
     .catch(() => {
       orderList = [];
-      replaceSection('order-card', renderOrder());
+      renderState("orderRows", {
+        error: MSG.error.loadFailed("orders"),
+        retry: "initDashboard"
+      });
     });
 }
+
+window.initDashboard = initDashboard;
 
 function refreshStatCardsIfReady() {
   replaceSection('stat-cards', renderStatCards());

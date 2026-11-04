@@ -1,10 +1,11 @@
-import {listCategories, createCategory, updateCategory, deleteCategory} from "../api/category.js";
-import {getProducts} from "../api/product.js";
-import {formatDate} from "../shared/format.js";
-import {renderHeader} from "../component/header.js";
-import {renderSidebar} from "../component/sidebar.js";
-import {showAlert} from "../component/alert.js";
-import {closeDeleteModal, getDeletingId, openDeleteModal} from "../component/popupConfrimDelete.js";
+import {renderHeader} from "../../../components/layout/header.js";
+import {renderSidebar} from "../../../components/layout/sidebar.js";
+import {openDeleteModal, closeDeleteModal} from "../../../components/modal/confirmDelete.js";
+import {MSG} from "../../../shared/messages.js";
+import {renderState} from "../../../shared/states.js";
+import {formatDate} from "../../../shared/format.js";
+import {getProducts} from "../product/api.js";
+import * as categoryApi from "./api.js";
 
 
 let categories = [];
@@ -112,36 +113,42 @@ function renderTable(list) {
 async function saveCategory() {
   const name = nameInput ? nameInput.value.trim() : '';
 
-  if (!name) return;
+  if (!name) {
+    window.toastWarning(MSG.warning.emptyName);
+    return;
+  }
 
   try {
     if (editingCategoryId !== null) {
-      await updateCategory(editingCategoryId, name);
+      await categoryApi.updateCategory(editingCategoryId, name);
+      window.toastSuccess(MSG.success.categoryUpdated);
     } else {
-      await createCategory(name);
+      await categoryApi.createCategory(name);
+      window.toastSuccess(MSG.success.categoryCreated);
     }
 
     closeCategoryModal();
-    categories = await listCategories();
+    categories = await categoryApi.listCategories();
     renderTable(categories);
   } catch (error) {
     console.error('Error saving category:', error);
-    showAlert(error.message || 'Failed to save category', "error");
+    window.toastError(error.message || MSG.error.saveFailed("category"));
   }
 }
 
-async function confirmDelete() {
-  const id = getDeletingId();
-  if (id === null) return;
+async function confirmDeleteCategory(id) {
+  const targetId = id;
+  if (targetId === null || targetId === undefined) return;
 
   try {
-    await deleteCategory(id);
-    categories = await listCategories();
+    await categoryApi.deleteCategory(targetId);
+    categories = await categoryApi.listCategories();
     renderTable(categories);
     closeDeleteModal();
+    window.toastSuccess(MSG.success.categoryDeleted);
   } catch (error) {
     console.error('Error deleting category:', error);
-    showAlert(error.message || 'Failed to delete category', "error");
+    window.toastError(error.message || MSG.error.deleteFailed("category"));
   }
 }
 
@@ -165,20 +172,36 @@ document.addEventListener("click", (e) => {
 
   if (!button) return;
 
-  openDeleteModal(button.dataset.categoryId);
+  const id = button.dataset.categoryId;
+  const category = categories.find(c => String(c.id) === String(id));
+
+  openDeleteModal({
+    id,
+    name: category ? category.name : "",
+    onConfirm: (deletedId) => confirmDeleteCategory(deletedId)
+  });
 });
 
 window.openCategoryModal = openCategoryModal;
 window.closeCategoryModal = closeCategoryModal;
-window.confirmDelete = confirmDelete;
 window.closeDeleteModal = closeDeleteModal;
 
 async function initCategories() {
-  categories = await listCategories();
-  // productList = await getProducts();
+  renderState("categoryList", {loading: true});
 
-  renderTable(categories);
+  try {
+    categories = await categoryApi.listCategories();
+    renderTable(categories);
+  } catch (error) {
+    console.error('Error loading categories:', error);
+    renderState("categoryList", {
+      error: MSG.error.loadFailed("categories"),
+      retry: "initCategories"
+    });
+  }
 }
+
+window.initCategories = initCategories;
 
 renderSidebar();
 renderHeader('categories');

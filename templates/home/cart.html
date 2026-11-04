@@ -2,8 +2,7 @@
 {% block title %}Cart — ThreadShop{% endblock %}
 
 {% block extra_js %}
-<script src="{{ url_for('static', filename='js/home/cart/cart_qty.js') }}"></script>
-<script src="{{ url_for('static', filename='js/home/cart/cart_update.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/features/home/cart/cartUpdate.js') }}"></script>
 {% endblock %}
 
 {% block content %}

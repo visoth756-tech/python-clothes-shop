@@ -19,9 +19,6 @@
 
 		<main class="flex-1 overflow-y-auto p-7">
 			<div class="bg-white border border-stone-200 rounded-lg overflow-hidden">
-				<div class="overflow-x-auto">
-
-					<div class="bg-white border border-stone-200 rounded-lg overflow-hidden">
 
 						<!-- Header -->
 						<div class="grid grid-cols-[0.5fr_1.5fr_1fr_1fr_1fr] bg-stone-50 border-b border-stone-200">
@@ -49,8 +46,6 @@
 						</div>
 						<div id="categoryList"></div>
 
-					</div>
-				</div>
 			</div>
 
 			<p class="text-xs text-stone-400 mt-3 font-mono">
@@ -94,6 +89,7 @@
 
 {% include "layouts/data.html" %}
 
-<script type="module" src="{{ url_for('static', filename='js/admin/category.js') }}"></script>
+<script src="{{ url_for('static', filename='js/shared/toast.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/features/admin/category/page.js') }}"></script>
 </body>
 </html>

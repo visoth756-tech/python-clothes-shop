@@ -1,4 +1,4 @@
-import {loginWithJWT} from "../api/auth.js";
+import {loginWithJWT} from "./api.js";
 
 const togglePassword = document.getElementById('togglePassword');
 const togglePasswordIcon = document.getElementById('togglePasswordIcon');
@@ -57,6 +57,7 @@ if (form) {
       form.submit();
     } catch (err) {
       showError(err.message || 'Invalid username or password');
+      window.toastError(err.message || "Invalid username or password");
       setSubmitting(false);
     }
   });

@@ -1,6 +1,8 @@
-import {renderSidebar} from "../component/sidebar.js";
-import {renderHeader} from "../component/header.js";
-import {authHeaders} from "../api/token.js";
+import {renderSidebar} from "../../components/layout/sidebar.js";
+import {renderHeader} from "../../components/layout/header.js";
+import {authHeaders} from "../../shared/tokens.js";
+import {renderState} from "../../shared/states.js";
+import {MSG} from "../../shared/messages.js";
 
 const table = document.getElementById('table');
 const BASE_URL = "/admin/api/error-logs";
@@ -21,8 +23,6 @@ const ERRORlOGS = {
 function renderHeaderTable() {
   if (!table) return;
 
-  let error_logs = 0;
-
   table.innerHTML = `
     <div class="bg-white border border-stone-200 rounded-lg overflow-hidden">
       <div class="grid ${grid} bg-stone-50 border-b border-stone-200">
@@ -35,8 +35,8 @@ function renderHeaderTable() {
       <div id="errorLogRows"></div>
     </div>
     <p class="text-xs text-stone-400 mt-3 font-mono">
-      <span id="errorLogCount">${error_logs.length}</span>
-      record<span id="recordPlural">${error_logs.length === 1 ? '' : 's'}</span>
+      <span id="errorLogCount">${errorLogList.length}</span>
+      record<span id="recordPlural">${errorLogList.length === 1 ? '' : 's'}</span>
     </p>
   `;
 }
@@ -45,6 +45,8 @@ function renderRows() {
   const rows = document.getElementById('errorLogRows');
   const count = document.getElementById('errorLogCount');
   const plural = document.getElementById('recordPlural');
+
+  if (!rows) return;
 
   if (!errorLogList.length) {
     rows.innerHTML = `<div class="px-5 py-8 text-sm text-stone-400 text-center">No logs found</div>`;
@@ -60,8 +62,8 @@ function renderRows() {
     `).join('');
   }
 
-  count.textContent = errorLogList.length;
-  plural.textContent = errorLogList.length === 1 ? '' : 's';
+  if (count) count.textContent = errorLogList.length;
+  if (plural) plural.textContent = errorLogList.length === 1 ? '' : 's';
 }
 
 function formatTimestamp(timestamp) {
@@ -84,10 +86,21 @@ async function getErrorLogs() {
 }
 
 async function initErrorLog() {
-  errorLogList = await getErrorLogs();
-  console.log("errorLogList", errorLogList);   // log AFTER the await
-  renderRows();
+  renderState("errorLogRows", {loading: true});
+
+  try {
+    errorLogList = await getErrorLogs();
+    renderRows();
+  } catch (error) {
+    console.error("Error loading error logs:", error);
+    renderState("errorLogRows", {
+      error: MSG.error.loadFailed("error logs"),
+      retry: "initErrorLog"
+    });
+  }
 }
+
+window.initErrorLog = initErrorLog;
 
 renderSidebar();
 renderHeader("error_logs");

@@ -1,4 +1,4 @@
-import { register } from "../api/auth.js";
+import {register} from "./api.js";
 
 // Toggle visibility for password fields
 document.querySelectorAll('.toggle-password').forEach((btn) => {
@@ -53,13 +53,18 @@ if (form) {
 
     try {
       await register(username, password);
-      window.location.href = 'login.html';
+      window.toastSuccess("Account created — welcome!");
+      const loginUrl = window.LOGIN_URL || "/auth/login";
+      setTimeout(() => {
+        window.location.href = loginUrl;
+      }, 600);
     } catch (error) {
       console.error('Signup errors:', error);
       if (formErrorText) {
         formErrorText.textContent = error.message || 'Could not create account.';
       }
       if (formError) formError.classList.remove('hidden');
+      window.toastError(error.message || "Could not create account.");
     } finally {
       if (submitBtn) submitBtn.disabled = false;
       if (submitText) submitText.textContent = 'Create account';

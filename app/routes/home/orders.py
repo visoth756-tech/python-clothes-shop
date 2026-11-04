@@ -15,5 +15,5 @@ def orders():
 def order_detail(order_id):
 	order = get_order()
 	if not order or order.get("id") != order_id:
-		return render_template("home/404.html"), 404
+		return render_template("errors/404.html"), 404
 	return render_template("home/order_detail.html", order=order)
