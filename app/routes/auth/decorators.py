@@ -51,6 +51,14 @@ def admin_api_guard():
     A bad/expired JWT is ignored so the session can still be used.
     Returns an error response to abort the request, or None to continue.
     """
+    # Browser pages identify the signed-in user through the session. A saved
+    # JWT may belong to a different account from an earlier login.
+    if session.get("user_id"):
+        if session.get("role") != "ADMIN":
+            return jsonify({"errors": "Forbidden"}), 403
+        g.admin_user_id = session["user_id"]
+        return None
+
     user_id = None
 
     try:
@@ -63,11 +71,7 @@ def admin_api_guard():
         user = User.query.get(user_id)
         if not user or user.role != Role.ADMIN:
             return jsonify({"errors": "Forbidden"}), 403
-        return None
-
-    if session.get("user_id"):
-        if session.get("role") != "ADMIN":
-            return jsonify({"errors": "Forbidden"}), 403
+        g.admin_user_id = user.id
         return None
 
     return jsonify({"errors": "Not authenticated"}), 401

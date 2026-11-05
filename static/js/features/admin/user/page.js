@@ -21,6 +21,13 @@ const USERS = {
 let userList = [];
 let editing = null;
 
+function isCurrentUser(user) {
+  return Boolean(user?.is_current_user) || (
+    window.CURRENT_USER?.id != null &&
+    String(user?.id) === String(window.CURRENT_USER.id)
+  );
+}
+
 const modal = document.getElementById('formModel');
 const form = document.getElementById('loginForm');
 const title = document.getElementById('popupTitle');
@@ -51,6 +58,7 @@ function openModal(id = null) {
   popup.clearError();
   editing = id;
   inputImage.value = "";
+  if (status) status.disabled = false;
 
   if (id !== null) {
     const user = userList.find(u => String(u.id) === String(id));
@@ -66,6 +74,8 @@ function openModal(id = null) {
     if (password) password.value = "";
     if (role) role.value = user.role ?? "USER";
     if (status) status.value = user.status ?? "ACTIVE";
+    if (status) status.disabled = isCurrentUser(user);
+    if (status) status.title = isCurrentUser(user) ? "You cannot change your own account status." : "";
 
     if (user.image) {
       imagePreview.src = userFullImageSrc(user.image);
@@ -210,6 +220,7 @@ function renderUsers() {
         </button>
         <button type="button"
           data-user-id="${u.id}"
+          ${isCurrentUser(u) ? 'disabled title="You cannot delete your own account."' : ''}
           class="delete-user flex items-center text-stone-400 hover:text-red-600 p-1.5 rounded hover:bg-red-50 cursor-pointer ml-1">
           <i class="fa-solid fa-trash"></i>Del
         </button>
@@ -221,6 +232,12 @@ function renderUsers() {
 if (form) {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+
+    const editedUser = userList.find(u => String(u.id) === String(editing));
+    if (editing && isCurrentUser(editedUser) && status.value !== editedUser.status) {
+      popup.showError("You cannot change your own account status.");
+      return;
+    }
 
     const formData = new FormData();
     formData.append("username", username ? username.value.trim() : "");
@@ -261,6 +278,10 @@ if (form) {
 async function handleDeleteUser(id) {
   const targetId = id;
   if (targetId === null || targetId === undefined) return;
+  if (isCurrentUser(userList.find(u => String(u.id) === String(targetId)))) {
+    window.toastError("You cannot delete your own account.");
+    return;
+  }
 
   try {
     await deleteUser(targetId);
@@ -276,7 +297,7 @@ async function handleDeleteUser(id) {
 document.addEventListener("click", (e) => {
   const button = e.target.closest(".delete-user");
 
-  if (!button) return;
+  if (!button || button.disabled) return;
 
   const id = button.dataset.userId;
   const user = userList.find(u => String(u.id) === String(id));

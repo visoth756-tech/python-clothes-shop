@@ -6,7 +6,6 @@ from flask import Flask, g, jsonify, make_response, render_template, request, se
 from flask_cors import CORS
 from dotenv import load_dotenv
 
-# Load runtime settings before config and payment modules read the environment.
 load_dotenv()
 
 from app.extensions import db, migrate, limiter, csrf, jwt
@@ -17,7 +16,9 @@ from app.routes.auth import jwt_bp
 from app.services.home.cart import get_cart, cart_count
 from app.services.telegram import send_telegram
 from app.services.home.catalog import format_price
-
+from app.services.auth import invalidate_login
+from app.routes.home.api_orders import api_order_bp
+from app.routes.home.api_payments import api_payment_bp
 
 def create_app(config_class=DevelopmentConfig):
 	app = Flask(
@@ -36,20 +37,13 @@ def create_app(config_class=DevelopmentConfig):
 	
 	app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=1440)
 	
-	# Initialize extensions
 	db.init_app(app)
 	migrate.init_app(app, db)
 	limiter.init_app(app)
 	csrf.init_app(app)
 	jwt.init_app(app)
 
-	# JWT auth uses Bearer tokens, so it must not require a CSRF token
 	csrf.exempt(jwt_bp)
-
-	# User API accepts JWT (no CSRF) as well as session requests; session
-	# requests are still CSRF-checked inside api_user_guard.
-	from app.routes.home.api_orders import api_order_bp
-	from app.routes.home.api_payments import api_payment_bp
 
 	csrf.exempt(api_order_bp)
 	csrf.exempt(api_payment_bp)
@@ -77,7 +71,7 @@ def create_app(config_class=DevelopmentConfig):
 	
 	@app.errorhandler(429)
 	def too_many_requests(error):
-		dashboard_limited = request.endpoint == "admin.dashboard"
+		dashboard_limited = request.blueprint == "admin"
 		login_limited = request.endpoint in {"jwt_auth.login", "auth.login"}
 		notify = not dashboard_limited or getattr(g, "dashboard_limit_new", True)
 		if login_limited:
@@ -93,6 +87,10 @@ def create_app(config_class=DevelopmentConfig):
 				notify = key not in login_alerts
 				login_alerts[key] = reset_at
 		if dashboard_limited:
+			user = db.session.get(User, session.get("user_id")) if session.get("user_id") else None
+			if user:
+				invalidate_login(user)
+				db.session.commit()
 			session.clear()
 		# Notify once per dashboard lockout, not on every blocked refresh.
 		if notify:
@@ -131,7 +129,7 @@ def create_app(config_class=DevelopmentConfig):
 		), 429)
 		response.headers["Cache-Control"] = "no-store"
 		if dashboard_limited:
-			response.headers["Retry-After"] = str(g.dashboard_retry_after)
+			response.headers["Retry-After"] = str(getattr(g, "dashboard_retry_after", 60))
 		return response
 	
 	@app.errorhandler(500)

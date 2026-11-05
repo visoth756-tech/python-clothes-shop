@@ -1,5 +1,3 @@
-import {register} from "./api.js";
-
 // Toggle visibility for password fields
 document.querySelectorAll('.toggle-password').forEach((btn) => {
   btn.addEventListener('click', () => {
@@ -19,55 +17,34 @@ document.querySelectorAll('.toggle-password').forEach((btn) => {
 });
 
 const form = document.getElementById('signupForm');
-const formError = document.getElementById('formError');
-const formErrorText = document.getElementById('formErrorText');
-const matchHint = document.getElementById('matchHint');
 const passwordInput = document.getElementById('password');
 const confirmInput = document.getElementById('confirmPassword');
 const submitBtn = document.getElementById('signupSubmit');
 const submitText = document.getElementById('signupSubmitText');
 
 if (form) {
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    if (formError) formError.classList.add('hidden');
-    if (matchHint) matchHint.classList.add('hidden');
+  confirmInput.addEventListener('input', () => confirmInput.setCustomValidity(''));
+  passwordInput.addEventListener('input', () => confirmInput.setCustomValidity(''));
+
+  form.addEventListener('submit', (event) => {
 
     if (!form.checkValidity()) {
+      event.preventDefault();
       form.reportValidity();
       return;
     }
 
     if (passwordInput.value !== confirmInput.value) {
-      if (matchHint) matchHint.classList.remove('hidden');
+      event.preventDefault();
+      confirmInput.setCustomValidity("Passwords don't match.");
+      confirmInput.reportValidity();
       confirmInput.focus();
       return;
     }
 
-    const usernameInput = document.getElementById('username');
-    const username = usernameInput ? usernameInput.value.trim() : '';
-    const password = passwordInput.value;
-
     if (submitBtn) submitBtn.disabled = true;
     if (submitText) submitText.textContent = 'Creating…';
 
-    try {
-      await register(username, password);
-      window.toastSuccess("Account created — welcome!");
-      const loginUrl = window.LOGIN_URL || "/auth/login";
-      setTimeout(() => {
-        window.location.href = loginUrl;
-      }, 600);
-    } catch (error) {
-      console.error('Signup errors:', error);
-      if (formErrorText) {
-        formErrorText.textContent = error.message || 'Could not create account.';
-      }
-      if (formError) formError.classList.remove('hidden');
-      window.toastError(error.message || "Could not create account.");
-    } finally {
-      if (submitBtn) submitBtn.disabled = false;
-      if (submitText) submitText.textContent = 'Create account';
-    }
+    // Submit all form fields, including CSRF and confirmation, to Flask.
   });
 }

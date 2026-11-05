@@ -1,4 +1,4 @@
-from flask import request, jsonify, render_template
+from flask import request, jsonify, render_template, g
 from werkzeug.security import generate_password_hash
 
 from app.extensions import db
@@ -12,6 +12,7 @@ from ...models.enums import Role, UserStatus
 def serialize_user(user: User) -> dict:
   return {
    "id": user.id,
+   "is_current_user": str(user.id) == str(g.admin_user_id),
    "image": user.image,
    "image_thumb": get_thumb_filename(user.image),
    "username": user.username,
@@ -92,6 +93,11 @@ def update_user(user_id):
 
   data = request.form
 
+  if str(user.id) == str(g.admin_user_id) and (
+   "status" in data and data["status"] != user.status.value
+  ):
+   return jsonify({"errors": "You cannot change your own account status."}), 403
+
   if "username" in data:
    new_username = data["username"].strip()
    if not new_username:
@@ -131,6 +137,9 @@ def delete_user(user_id):
   user = User.query.get(user_id)
   if not user:
    return jsonify({"errors": "User not found"}), 404
+
+  if str(user.id) == str(g.admin_user_id):
+   return jsonify({"errors": "You cannot delete your own account."}), 403
 
   if user.role == Role.ADMIN:
    return jsonify({"errors": "Admin users cannot be deleted"}), 403

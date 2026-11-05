@@ -7,15 +7,15 @@
 			<h1>429</h1>
 			<p>Too many requests.</p>
 			{% if dashboard_limited %}
-			<p>Your dashboard session has ended. Please wait before signing in again.</p>
-			<div class="cooldown" role="timer" aria-label="Dashboard cooldown">
+			<p>Your admin session has ended. Please wait before signing in again.</p>
+			<div class="cooldown" role="timer" aria-label="Admin cooldown">
 				<svg viewBox="0 0 120 120" aria-hidden="true">
 					<circle class="cooldown-track" cx="60" cy="60" r="52" />
 					<circle class="cooldown-progress" cx="60" cy="60" r="52" />
 				</svg>
 				<strong id="countdown">01:00</strong>
 			</div>
-			<p id="cooldown-status">Dashboard access resumes after the countdown.</p>
+			<p id="cooldown-status">Admin access resumes after the countdown.</p>
 			<a id="login-link" href="{{ url_for('auth.login') }}" class="btn btn--primary" hidden>Sign in</a>
 			{% endif %}
 			<a href="{{ url_for('main.index') }}" class="btn btn--primary">Go Home</a>
@@ -43,7 +43,10 @@
 <script>
 	(() => {
 		for (const name of ['localStorage', 'sessionStorage']) {
-			try { window[name].removeItem('access_token'); } catch (_) {}
+			try {
+				window[name].removeItem('access_token');
+				window[name].removeItem('refresh_token');
+			} catch (_) {}
 		}
 		const deadline = Date.now() + {{ retry_after | int }} * 1000;
 		const countdown = document.getElementById('countdown');
@@ -54,7 +57,7 @@
 			progress.style.strokeDashoffset = 326.726 * (1 - remaining / 60);
 			if (remaining === 0) {
 				clearInterval(timer);
-				document.getElementById('cooldown-status').textContent = 'You can sign in and open the dashboard again.';
+				document.getElementById('cooldown-status').textContent = 'You can sign in and open admin pages again.';
 				document.getElementById('login-link').hidden = false;
 			}
 		}

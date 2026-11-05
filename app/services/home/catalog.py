@@ -9,7 +9,7 @@ def format_price(cents):
 
 def product_data(product):
     image = product.image or ""
-    image_url = url_for("static", filename="uploads/products/" + image) if image else url_for("static", filename="img/default-avatar.png")
+    image_url = url_for("static", filename="uploads/products/" + image) if image else url_for("static", filename="img/no-image-available.jpg")
     return {
         "id": product.id, "name": product.name, "description": product.description or "",
         "image": image, "imageUrl": image_url,

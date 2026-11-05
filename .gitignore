@@ -2,6 +2,15 @@
 __pycache__/
 *.py[cod]
 *.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+*.egg-info/
+build/
+dist/
 
 # Virtual environment
 .venv/
@@ -15,6 +24,24 @@ env/
 
 # Flask instance
 instance/
+
+# Local databases and SQLite sidecar files
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite3-journal
+*.sqlite3-wal
+*.sqlite3-shm
+
+# Runtime logs
+*.log
+logs/
 
 # Uploaded files
 static/uploads/

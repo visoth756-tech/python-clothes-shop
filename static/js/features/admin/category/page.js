@@ -59,7 +59,7 @@ function updateCategoryCount(count) {
 }
 
 function countProductsByCategory(categoryId) {
-  return productList.filter(product => String(product.categoryId) === String(categoryId)).length;
+  return productList.filter(product => String(product.category_id) === String(categoryId)).length;
 }
 
 function renderTable(list) {

@@ -20,7 +20,7 @@ admin_error_log_bp = Blueprint("admin_error_log", __name__, url_prefix="/admin/a
 
 @admin_bp.before_request
 def limit_dashboard_refreshes():
-	if request.endpoint != "admin.dashboard" or request.method != "GET":
+	if request.method != "GET":
 		return
 	g.pop("dashboard_retry_after", None)
 	g.pop("dashboard_limit_new", None)
@@ -53,7 +53,7 @@ def limit_dashboard_refreshes():
 				g.dashboard_retry_after = 60
 				g.dashboard_limit_new = True
 	if getattr(g, "dashboard_retry_after", None):
-		abort(429, description="10 dashboard requests per minute")
+		abort(429, description="10 admin page requests per minute")
 
 def admin_user_key():
 	user_id = session.get("user_id")
