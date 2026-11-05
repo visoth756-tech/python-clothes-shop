@@ -22,13 +22,8 @@ env/
 .env.*
 !.env.example
 
-# Flask instance
-instance/
 
 # Local databases and SQLite sidecar files
-*.db
-*.sqlite
-*.sqlite3
 *.db-journal
 *.db-wal
 *.db-shm
@@ -43,9 +38,6 @@ instance/
 *.log
 logs/
 
-# Uploaded files
-static/uploads/
-
 # Generated Tailwind/CSS
 static/dist/
 
@@ -55,9 +47,6 @@ node_modules/
 # IDE
 .vscode/
 .idea/
-
-# Rayu
-.rayu/
 
 # OS
 .DS_Store
