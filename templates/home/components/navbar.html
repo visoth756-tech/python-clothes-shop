@@ -43,6 +43,7 @@
 
 			<div class="navbar__profile-popup hidden"  id="profilePopup">
 				<div class="navbar__profile-popup-header">
+                    <button type="button" id="profileClose" class="navbar__profile-close" aria-label="Close profile menu">&times;</button>
 					<img src="{{ url_for('static', filename='uploads/users/' ~ session.get('image')) if session.get('image') else url_for('static', filename='img/default-avatar.png') }}"
 						alt="{{ session.get('username') }}" class="navbar__profile-popup-avatar"
 						onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default-avatar.png') }}';">
@@ -55,6 +56,7 @@
 				</div>
 
 				<div class="navbar__profile-popup-links">
+                    <a href="{{ url_for('auth.profile') }}"><i class="fa-solid fa-user"></i><span>My Profile</span></a>
 					{% if session.get('role') == 'ADMIN' %}
 					<a href="{{ url_for('admin.dashboard') }}">
 						<i class="fa-solid fa-gauge"></i>
@@ -66,10 +68,12 @@
 						<span>My Orders</span>
 					</a>
 					<div class="navbar__profile-popup-divider"></div>
-					<a href="{{ url_for('auth.logout') }}" class="navbar__profile-logout">
+					<form action="{{ url_for('auth.logout') }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="navbar__profile-logout">
 						<i class="fa-solid fa-arrow-right-from-bracket"></i>
 						<span>Logout</span>
-					</a>
+                        </button></form>
 				</div>
 			</div>
 		</div>

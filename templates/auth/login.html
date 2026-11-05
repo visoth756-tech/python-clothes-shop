@@ -5,6 +5,7 @@
 	{% include "layouts/head.html" %}
 
 	<script>
+    if (window.tailwind) {
     tailwind.config = {
       theme: {
         extend: {
@@ -27,6 +28,7 @@
         }
       }
     }
+	}
 	</script>
 	<style>
       body {
@@ -124,7 +126,8 @@
 				<span id="formErrorText"></span>
 			</div>
 
-			<form id="loginForm" method="POST" action="{{ url_for('auth.login') }}" class="space-y-5">
+			{% if request.args.get('updated') == '1' %}<p role="status" class="mb-4 text-sm text-green-700">Profile updated. Sign in with your new details.</p>{% endif %}
+        <form id="loginForm" method="POST" action="{{ url_for('auth.login') }}" class="space-y-5">
 				<!-- CSRF token -->
 				<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 				<div>

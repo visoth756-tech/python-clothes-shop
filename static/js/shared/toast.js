@@ -61,10 +61,12 @@ function showToast(message, type = "info") {
     toast.className = `toast toast--${TOAST_CLASS[toastType]}`;
     toast.innerHTML = `
         <span class="toast__icon">${TOAST_ICON[toastType]}</span>
-        <span class="toast__message">${message}</span>
+        <span class="toast__message"></span>
         <button class="toast__close" aria-label="Close">&times;</button>
     `;
 
+    toast.querySelector(".toast__message").textContent = message;
+    toast.setAttribute("role", toastType === "error" || toastType === "danger" ? "alert" : "status");
     toast.querySelector(".toast__close").addEventListener("click", () => dismissToast(toast));
 
     container.appendChild(toast);

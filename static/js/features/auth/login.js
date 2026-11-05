@@ -1,3 +1,5 @@
+import {clearTokens} from "../../shared/tokens.js";
+clearTokens();
 import {loginWithJWT} from "./api.js";
 
 const togglePassword = document.getElementById('togglePassword');

@@ -1,3 +1,4 @@
+import {submitSessionLogout} from "../../shared/logout.js";
 import {formatCapitalLetter} from "../../shared/format.js";
 import {getUserThumbUrl} from "../../features/admin/user/api.js";
 import {logoutWithJWT} from "../../features/auth/api.js";
@@ -117,8 +118,8 @@ function initCurrentUser() {
     logoutBtn.addEventListener("click", async () => {
       if (!confirm("Are you sure you want to log out?")) return;
 
-      await logoutWithJWT();
-      window.location.href = window.LOGOUT_URL;
+      try { await logoutWithJWT(); }
+      finally { submitSessionLogout(); }
     });
   }
 }

@@ -14,6 +14,13 @@ function initNavbar() {
 
   // Profile popup dropdown toggle & outside click handling
   if (profileToggle && profilePopup) {
+    function closeProfile() {
+      profilePopup.classList.add("hidden");
+      profileToggle.setAttribute("aria-expanded", "false");
+      profileWrapper?.classList.remove("active");
+      profileToggle.focus();
+    }
+    document.getElementById("profileClose")?.addEventListener("click", closeProfile);
     profileToggle.addEventListener("click", function (e) {
       e.stopPropagation();
       const isHidden = profilePopup.classList.toggle("hidden");

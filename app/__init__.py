@@ -1,5 +1,5 @@
 from datetime import timedelta
-from flask import Flask, render_template, request
+from flask import Flask, g, jsonify, make_response, render_template, request, session
 from flask_cors import CORS
 from dotenv import load_dotenv
 
@@ -71,25 +71,47 @@ def create_app(config_class=DevelopmentConfig):
 	
 	@app.errorhandler(429)
 	def too_many_requests(error):
-		log = RateLimitLog(
-			ip_address=request.remote_addr,
-			endpoint=request.path,
-			method=request.method,
-			limit=str(error.description)
-		)
-		
-		db.session.add(log)
-		db.session.commit()
-		
-		send_telegram(
-			"Rate Limit Triggered\n"
-			f"IP: {request.remote_addr}\n"
-			f"Endpoint: {request.path}\n"
-			f"Method: {request.method}\n"
-			f"Limit: {error.description}"
-		)
-		
-		return render_template("errors/429.html"), 429
+		dashboard_limited = request.endpoint == "admin.dashboard"
+		if dashboard_limited:
+			session.clear()
+		# Notify once per dashboard lockout, not on every blocked refresh.
+		if not dashboard_limited or getattr(g, "dashboard_limit_new", True):
+			try:
+				log = RateLimitLog(
+					ip_address=request.remote_addr,
+					endpoint=request.path,
+					method=request.method,
+					limit=str(error.description)
+				)
+				db.session.add(log)
+				db.session.commit()
+			except Exception:
+				db.session.rollback()
+				app.logger.exception("Could not save rate-limit log")
+			try:
+				send_telegram(
+					"Rate Limit Triggered\n"
+					f"IP: {request.remote_addr}\n"
+					f"Endpoint: {request.path}\n"
+					f"Method: {request.method}\n"
+					f"Limit: {error.description}"
+				)
+			except Exception:
+				app.logger.exception("Could not send rate-limit Telegram message")
+		if request.endpoint == "jwt_auth.login":
+			response = jsonify(msg="Too many failed login attempts. Please try again in one minute.")
+			response.status_code = 429
+			response.headers["Cache-Control"] = "no-store"
+			return response
+		response = make_response(render_template(
+			"errors/429.html",
+			dashboard_limited=dashboard_limited,
+			retry_after=getattr(g, "dashboard_retry_after", 60),
+		), 429)
+		response.headers["Cache-Control"] = "no-store"
+		if dashboard_limited:
+			response.headers["Retry-After"] = str(g.dashboard_retry_after)
+		return response
 	
 	@app.errorhandler(500)
 	def internal_server_error(_error):

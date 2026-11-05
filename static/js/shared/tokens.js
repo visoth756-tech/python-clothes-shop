@@ -17,6 +17,8 @@ export function getRefreshToken() {
 export function clearTokens() {
   localStorage.removeItem(ACCESS_KEY);
   localStorage.removeItem(REFRESH_KEY);
+  sessionStorage.removeItem(ACCESS_KEY);
+  sessionStorage.removeItem(REFRESH_KEY);
 }
 
 /** Merges an Authorization header into the given headers, when a token exists. */

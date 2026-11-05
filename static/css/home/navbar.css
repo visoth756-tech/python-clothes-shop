@@ -256,7 +256,7 @@
     padding: 6px;
 }
 
-.navbar__profile-popup-links a {
+.navbar__profile-popup-links :is(a, button) {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -268,19 +268,19 @@
     transition: background 0.15s ease, color 0.15s ease;
 }
 
-.navbar__profile-popup-links a i {
+.navbar__profile-popup-links :is(a, button) i {
     width: 16px;
     text-align: center;
     font-size: 0.85rem;
     color: #78716c;
 }
 
-.navbar__profile-popup-links a:hover {
+.navbar__profile-popup-links :is(a, button):hover {
     background: #f5f5f4;
     color: #0c0a09;
 }
 
-.navbar__profile-popup-links a:hover i {
+.navbar__profile-popup-links :is(a, button):hover i {
     color: #0c0a09;
 }
 
@@ -290,19 +290,25 @@
     margin: 4px 6px;
 }
 
-.navbar__profile-popup-links a.navbar__profile-logout {
+.navbar__profile-popup-links :is(a, button).navbar__profile-logout {
     color: #dc2626;
 }
 
-.navbar__profile-popup-links a.navbar__profile-logout i {
+.navbar__profile-popup-links :is(a, button).navbar__profile-logout i {
     color: #dc2626;
 }
 
-.navbar__profile-popup-links a.navbar__profile-logout:hover {
+.navbar__profile-popup-links :is(a, button).navbar__profile-logout:hover {
     background: #fef2f2;
     color: #b91c1c;
 }
 
-.navbar__profile-popup-links a.navbar__profile-logout:hover i {
+.navbar__profile-popup-links :is(a, button).navbar__profile-logout:hover i {
     color: #b91c1c;
 }
+.navbar__profile-popup-links button { width: 100%; border: 0; background: transparent; text-align: left; cursor: pointer; }
+
+.navbar__profile-popup-header { position: relative; padding-right: 44px; }
+.navbar__profile-close { position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; border: 0; border-radius: 6px; background: transparent; font-size: 24px; cursor: pointer; color: #57534e; }
+.navbar__profile-close:hover { background: #f5f5f4; }
+.navbar__profile-close:focus-visible { outline: 2px solid currentColor; }

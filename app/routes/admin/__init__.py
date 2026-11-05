@@ -1,4 +1,9 @@
-from flask import Blueprint, session
+from collections import deque
+from math import ceil
+from threading import Lock
+from time import monotonic
+
+from flask import Blueprint, abort, current_app, g, request, session
 from app.extensions import limiter
 from app.extensions import get_remote_address
 from ..auth.decorators import admin_api_guard
@@ -11,6 +16,44 @@ admin_product_bp = Blueprint("admin_product", __name__, url_prefix="/admin/api/p
 admin_order_bp = Blueprint("admin_order", __name__, url_prefix="/admin/api/orders")
 admin_payment_bp = Blueprint("admin_payment", __name__, url_prefix="/admin/api/payments")
 admin_error_log_bp = Blueprint("admin_error_log", __name__, url_prefix="/admin/api/error-logs")
+
+
+@admin_bp.before_request
+def limit_dashboard_refreshes():
+	if request.endpoint != "admin.dashboard" or request.method != "GET":
+		return
+	g.pop("dashboard_retry_after", None)
+	g.pop("dashboard_limit_new", None)
+	state = current_app.extensions.setdefault(
+		"dashboard_refresh_limit", {"clients": {}, "lock": Lock()}
+	)
+	now = monotonic()
+	with state["lock"]:
+		clients = state["clients"]
+		for key, value in list(clients.items()):
+			if max(value["blocked_until"], value["last_seen"] + 60) <= now:
+				del clients[key]
+		# Keep the same key after session.clear(), including both dashboard URLs.
+		key = get_remote_address()
+		client = clients.get(key)
+		if client and client["blocked_until"] > now:
+			g.dashboard_retry_after = ceil(client["blocked_until"] - now)
+			g.dashboard_limit_new = False
+		elif session.get("user_id") and session.get("role") == "ADMIN":
+			client = clients.setdefault(key, {
+				"requests": deque(), "blocked_until": 0, "last_seen": now
+			})
+			client["last_seen"] = now
+			while client["requests"] and client["requests"][0] <= now - 60:
+				client["requests"].popleft()
+			client["requests"].append(now)
+			if len(client["requests"]) > 10:
+				client["blocked_until"] = now + 60
+				client["requests"].clear()
+				g.dashboard_retry_after = 60
+				g.dashboard_limit_new = True
+	if getattr(g, "dashboard_retry_after", None):
+		abort(429, description="10 dashboard requests per minute")
 
 def admin_user_key():
 	user_id = session.get("user_id")
