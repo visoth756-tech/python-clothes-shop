@@ -2,52 +2,60 @@
 {% block title %}Order #{{ order.id }} — ThreadShop{% endblock %}
 
 {% block content %}
-<div class="container container--sm">
-    <div class="page-header">
-        <h1>Order #{{ order.id }}</h1>
-        <span class="badge {{ 'badge--success' if order.get('paid') else 'badge--warning' }}">
-            {{ 'Paid' if order.get('paid') else 'Pending' }}
-        </span>
-    </div>
+	<div class="container container--sm">
+		<div class="page-header">
+			<h1>Order #{{ order.id }}</h1>
 
-    <div class="order-detail">
-        <div class="order-detail__section">
-            <h3>Order Details</h3>
-            <p>{{ order.username }}</p>
-            <p>Status: {{ order.status }}</p>
-            <p class="order-detail__date">Placed on {{ order.date }}</p>
-        </div>
+			{% if order.status == 'FAILED' %}
+				<span class="badge badge--danger">Failed</span>
+			{% elif order.get('paid') %}
+				<span class="badge badge--success">Paid</span>
+			{% else %}
+				<span class="badge badge--warning">Pending</span>
+			{% endif %}
+		</div>
 
-        <div class="order-detail__section">
-            <h3>Items</h3>
-            {% for item in order['items'] %}
-            <div class="order-summary__item">
-                <img src="{{ item.imageUrl }}"
-                     alt="{{ item.name }}"
-                     onerror="this.src='https://placehold.co/60x60?text=?'">
-                <div>
-                    <p class="order-summary__name">{{ item.name }}</p>
-                    <p class="order-summary__qty">Qty: {{ item.qty }} &times; {{ item.price }}</p>
-                </div>
-                <span class="order-summary__price">{{ item.subtotal }}</span>
-            </div>
-            {% endfor %}
-        </div>
+		<div class="order-detail">
+			<div class="order-detail__section">
+				<h3>Order Details</h3>
+				<p>{{ order.username }}</p>
+				<p>Status: {{ order.status }}</p>
+				{% if order.warning %}<p role="alert">{{ order.warning }}</p>{% endif %}
+				<p class="order-detail__date">Placed on {{ order.date }}</p>
+			</div>
 
-        <div class="order-detail__total">
-            <span>Order Total</span>
-            <span>{{ order.total }}</span>
-        </div>
+			<div class="order-detail__section">
+				<h3>Items</h3>
+				{% for item in order['items'] %}
+					<div class="order-summary__item">
+						<img src="{{ item.imageUrl }}"
+								 alt="{{ item.name }}"
+								 onerror="this.src='https://placehold.co/60x60?text=?'">
+						<div>
+							<p class="order-summary__name">{{ item.name }}</p>
+							<p class="order-summary__qty">Qty: {{ item.qty }} &times; {{ item.price }}</p>
+						</div>
+						<span class="order-summary__price">{{ item.subtotal }}</span>
+					</div>
+				{% endfor %}
+			</div>
 
-        <div class="order-detail__section">
-            <h3>Payments</h3>
-            {% for payment in order.payments %}<p>{{ payment.method }} ? {{ payment.status }} ? ${{ '%.2f'|format(payment.amount) }}</p>{% endfor %}
-        </div>
-        <div class="order-detail__actions">
-            <a href="{{ url_for('checkout.payment', order_id=order.id) }}" class="btn btn--primary">{{ 'View Payment' if order.paid else 'Continue Payment' }}</a>
-            <a href="{{ url_for('orders.orders') }}" class="btn btn--outline">Back to Orders</a>
-            <a href="{{ url_for('products.products_page') }}" class="btn btn--primary">Shop Again</a>
-        </div>
-    </div>
-</div>
+			<div class="order-detail__total">
+				<span>Order Total</span>
+				<span>{{ order.total }}</span>
+			</div>
+
+			<div class="order-detail__section">
+				<h3>Payments</h3>
+				{% for payment in order.payments %}
+					<p>{{ payment.method }} ? {{ payment.status }} ? ${{ '%.2f'|format(payment.amount) }}</p>{% endfor %}
+			</div>
+			<div class="order-detail__actions">
+				<a href="{{ url_for('checkout.payment', order_id=order.id) }}"
+					 class="btn btn--primary">{{ 'View Payment' if order.paid or order.status == 'FAILED' else 'Continue Payment' }}</a>
+				<a href="{{ url_for('orders.orders') }}" class="btn btn--outline">Back to Orders</a>
+				<a href="{{ url_for('products.products_page') }}" class="btn btn--primary">Shop Again</a>
+			</div>
+		</div>
+	</div>
 {% endblock %}

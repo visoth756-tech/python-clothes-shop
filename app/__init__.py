@@ -1,4 +1,7 @@
 from datetime import timedelta
+from math import ceil
+from threading import Lock
+from time import time
 from flask import Flask, g, jsonify, make_response, render_template, request, session
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -65,6 +68,9 @@ def create_app(config_class=DevelopmentConfig):
 		}
 	
 	# Error handlers
+	login_alerts = {}
+	login_alert_lock = Lock()
+
 	@app.errorhandler(404)
 	def page_not_found(_error):
 		return render_template("errors/404.html"), 404
@@ -72,10 +78,24 @@ def create_app(config_class=DevelopmentConfig):
 	@app.errorhandler(429)
 	def too_many_requests(error):
 		dashboard_limited = request.endpoint == "admin.dashboard"
+		login_limited = request.endpoint in {"jwt_auth.login", "auth.login"}
+		notify = not dashboard_limited or getattr(g, "dashboard_limit_new", True)
+		if login_limited:
+			now = time()
+			limit = limiter.current_limit
+			reset_at = limit.reset_at if limit else now + 60
+			retry_after = max(1, ceil(reset_at - now))
+			with login_alert_lock:
+				for key, expiry in list(login_alerts.items()):
+					if expiry <= now:
+						del login_alerts[key]
+				key = (request.endpoint, request.remote_addr)
+				notify = key not in login_alerts
+				login_alerts[key] = reset_at
 		if dashboard_limited:
 			session.clear()
 		# Notify once per dashboard lockout, not on every blocked refresh.
-		if not dashboard_limited or getattr(g, "dashboard_limit_new", True):
+		if notify:
 			try:
 				log = RateLimitLog(
 					ip_address=request.remote_addr,
@@ -99,9 +119,10 @@ def create_app(config_class=DevelopmentConfig):
 			except Exception:
 				app.logger.exception("Could not send rate-limit Telegram message")
 		if request.endpoint == "jwt_auth.login":
-			response = jsonify(msg="Too many failed login attempts. Please try again in one minute.")
+			response = jsonify(msg="Too many failed login attempts. Please wait before trying again.", retry_after=retry_after)
 			response.status_code = 429
 			response.headers["Cache-Control"] = "no-store"
+			response.headers["Retry-After"] = str(retry_after)
 			return response
 		response = make_response(render_template(
 			"errors/429.html",

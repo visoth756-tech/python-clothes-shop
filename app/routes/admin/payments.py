@@ -55,6 +55,7 @@ def api_create_payment():
 
 	payment, error, created = create_payment(order, order.user_id, method)
 	if error:
+		db.session.commit()
 		return jsonify({"errors": error}), 400
 
 	db.session.commit()

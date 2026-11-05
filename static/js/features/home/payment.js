@@ -16,20 +16,23 @@ function render() {
   qr.hidden = true;
   check.hidden = true;
   retry.hidden = true;
-  success.hidden = !payment || payment.status !== "PAID";
+  const failedOrder = payment?.orderStatus === "FAILED";
+  success.hidden = !payment || payment.status !== "PAID" || failedOrder;
   if (!payment) { status.textContent = "No payment found for this order."; return; }
   status.textContent = `${payment.method}: ${payment.status}`;
+  if (failedOrder) status.textContent += ' — Order: FAILED';
+  error.textContent = payment.warning || '';
   if (payment.status === "PAID") {
     successMessage.textContent = payment.method === "CASH"
       ? "Cash payment completed. Your order is confirmed."
       : "Bakong payment received. Your order is confirmed.";
   }
-  const pending = payment.method === "BAKONG" && payment.status === "PENDING";
+  const pending = !failedOrder && payment.method === "BAKONG" && payment.status === "PENDING";
   const mock = payment.qrData?.startsWith("MOCK-KHQR:");
   qr.hidden = !pending || !payment.qrData || mock;
   if (!qr.hidden) qr.src = `/api/payments/${encodeURIComponent(payment.id)}/qr?v=${encodeURIComponent(payment.tokenExpiresAt || "")}`;
   check.hidden = !pending;
-  retry.hidden = payment.status !== "FAILED" || payment.method !== "BAKONG";
+  retry.hidden = failedOrder || payment.status !== "FAILED" || payment.method !== "BAKONG";
   const expiry = document.getElementById("paymentExpiry");
   expiry.textContent = mock ? "Test payment: a payable QR is unavailable." : pending && payment.tokenExpiresAt ? `QR expires: ${new Date(payment.tokenExpiresAt).toLocaleString()}` : "";
   if (pending && !mock) timer = setTimeout(refresh, 5000);

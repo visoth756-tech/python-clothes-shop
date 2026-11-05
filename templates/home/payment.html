@@ -7,7 +7,7 @@
   {% set items = order['items'] %}{% set total = order.total %}
   {% include "home/components/order_summary.html" %}
   <section class="form-section" id="paymentPanel">
-    <div id="paymentSuccess" class="payment-success" role="status" aria-live="polite" {{ 'hidden' if not order.paid }}>
+    <div id="paymentSuccess" class="payment-success" role="status" aria-live="polite" {{ 'hidden' if not order.paid or order.status == 'FAILED' }}>
       <svg class="payment-success__icon" viewBox="0 0 72 72" aria-hidden="true">
         <circle class="payment-success__ring" cx="36" cy="36" r="32" />
         <path class="payment-success__tick" d="M20 36l11 11 22-23" />
@@ -17,7 +17,7 @@
     </div>
     <h3>Payment Details</h3>
     <p id="paymentStatus" role="status" aria-live="polite">{{ "PAID - Your order is confirmed." if order.paid else "Loading payment..." }}</p>
-    <p id="paymentError" role="alert"></p>
+    <p id="paymentError" role="alert">{{ order.warning or '' }}</p>
     <img id="paymentQr" alt="Scan with your banking app to pay using Bakong" width="280" height="280" hidden>
     <p id="paymentExpiry"></p>
     <button type="button" class="btn btn--outline" id="checkPayment" hidden>Check Payment</button>

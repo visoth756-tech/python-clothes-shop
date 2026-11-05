@@ -31,7 +31,8 @@
 	<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
 	<div class="bg-white rounded-lg p-6 w-full max-w-md">
-		<h2 id="popupTitle" class="text-lg font-semibold mb-4"></h2>
+		<div class="popup-heading"><h2 id="popupTitle" class="text-lg font-semibold mb-4"></h2><button type="button" data-popup-close class="popup-close" aria-label="Close user popup">&times;</button></div>
+        <p data-popup-error class="popup-error" role="alert" tabindex="-1" hidden></p>
 
 		<form id="loginForm" class="flex flex-col gap-4">
 

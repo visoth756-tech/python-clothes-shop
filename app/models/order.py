@@ -5,6 +5,7 @@ from app.extensions import db
 
 class Order(BaseDocument):
 	__tablename__ = "orders"
+	failure_reason = db.Column(db.Text, nullable=True)
 	
 	user_id = db.Column(
 		db.String(32),

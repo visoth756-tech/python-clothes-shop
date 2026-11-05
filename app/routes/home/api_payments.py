@@ -11,6 +11,8 @@ from ...services.payments import (
 	create_payment,
 	parse_method,
 	serialize_payment,
+	fail_order,
+	snapshot_warning,
 )
 from ..auth.decorators import api_user_guard
 
@@ -84,6 +86,7 @@ def create_payment_endpoint():
 		db.session.rollback()
 		return jsonify(errors="Payment provider is unavailable. Please retry."), 502
 	if error:
+		db.session.commit()
 		return jsonify({"errors": error}), 400
 
 	db.session.commit()
@@ -103,6 +106,14 @@ def payment_qr(payment_id):
     payment = Payment.query.get_or_404(payment_id)
     if not _can_view(payment):
         return jsonify(errors="Forbidden"), 403
+    if payment.order.status.value == "FAILED":
+        return jsonify(errors=payment.order.failure_reason or "Order failed"), 409
+    if payment.order.status.value == "PENDING":
+        warning = snapshot_warning(payment.order)
+        if warning:
+            fail_order(payment.order, warning)
+            db.session.commit()
+            return jsonify(errors=warning), 409
     if payment.method.value != "BAKONG" or payment.status.value != "PENDING" or not payment.qr_data or payment.qr_data.startswith("MOCK-KHQR:"):
         return jsonify(errors="Payment QR is unavailable"), 409
     try:

@@ -1,3 +1,4 @@
+import {setupPopup} from "../../../shared/popup.js";
 import {renderHeader} from "../../../components/layout/header.js";
 import {renderSidebar} from "../../../components/layout/sidebar.js";
 import {openDeleteModal, closeDeleteModal} from "../../../components/modal/confirmDelete.js";
@@ -47,6 +48,7 @@ function userFullImageSrc(image) {
 }
 
 function openModal(id = null) {
+  popup.clearError();
   editing = id;
   inputImage.value = "";
 
@@ -91,6 +93,7 @@ function openModal(id = null) {
 }
 
 function closeModal() {
+  popup.clearError();
   if (modal) modal.classList.add("hidden");
   if (form) form.reset();
   editing = null;
@@ -238,7 +241,7 @@ if (form) {
         window.toastSuccess(MSG.success.userUpdated);
       } else {
         if (!password || !password.value) {
-          window.toastError("Password is required for new users.");
+          popup.showError("Password is required for new users.");
           return;
         }
         await createUser(formData);
@@ -250,7 +253,7 @@ if (form) {
 
     } catch (error) {
       console.error('Error saving user:', error);
-      window.toastError(error.message || MSG.error.saveFailed("user"));
+      popup.showError(error.message || MSG.error.saveFailed("user"));
     }
   });
 }
@@ -310,3 +313,5 @@ renderSidebar();
 renderHeader("users");
 renderTableHeader();
 initUsers();
+
+const popup = setupPopup("formModel", () => closeModal());

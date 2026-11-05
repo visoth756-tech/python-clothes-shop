@@ -9,6 +9,7 @@ const ORDERS = {
   header: [
     { name: "Username" },
     { name: "Items" },
+    { name: "Method", class: "text-center" },
     { name: "Total Amount", class: "text-center" },
     { name: "Status", class: "text-center" },
     { name: "Date", class: "text-center" },
@@ -28,8 +29,14 @@ function getOrderItems(order) {
     .join(", ");
 }
 
+function getOrderMethods(order) {
+  const payments = Array.isArray(order.payments) ? order.payments : [];
+  const methods = [...new Set(payments.map(payment => payment.method).filter(Boolean))];
+  return methods.length ? methods.map(escapeHtml).join(", ") : "-";
+}
+
 const table = document.getElementById('table');
-const grid = "grid-cols-[1.2fr_2fr_1fr_1fr_1fr]";
+const grid = "grid-cols-[1.2fr_1.5fr_1fr_1fr_1fr_1fr]";
 
 function renderTableHeader() {
   if (!table) return;
@@ -96,7 +103,10 @@ function renderOrders() {
 
       <div class="px-5 py-4 text-stone-500 truncate" title="${getOrderItems(order)}">
         ${getOrderItems(order)}
-        <p>${(order.payments || []).map(p => `${escapeHtml(p.method)}: ${escapeHtml(p.status)}`).join(", ")}</p>
+      </div>
+
+      <div class="px-5 py-4 text-stone-500 text-center">
+        ${getOrderMethods(order)}
       </div>
 
       <div class="px-5 py-4 text-stone-600 text-center font-medium">
@@ -106,13 +116,13 @@ function renderOrders() {
       <div class="px-5 py-4 text-center">
         <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
           ${order.status?.toUpperCase() === 'CONFIRMED'
-            ? 'bg-green-100 text-green-700'
-            : order.status?.toUpperCase() === 'PENDING'
-              ? 'bg-yellow-100 text-yellow-700'
-              : order.status?.toUpperCase() === 'FAIL' || order.status?.toUpperCase() === 'FAILED'
-                ? 'bg-red-100 text-red-700'
-                : 'bg-stone-100 text-stone-600'
-          }">
+      ? 'bg-green-100 text-green-700'
+      : order.status?.toUpperCase() === 'PENDING'
+        ? 'bg-yellow-100 text-yellow-700'
+        : order.status?.toUpperCase() === 'FAIL' || order.status?.toUpperCase() === 'FAILED'
+          ? 'bg-red-100 text-red-700'
+          : 'bg-stone-100 text-stone-600'
+    }">
           ${formatCapitalLetter(order.status || 'Pending')}
         </span>
       </div>
@@ -125,7 +135,7 @@ function renderOrders() {
 }
 
 async function initOrders() {
-  renderState("orderRows", {loading: true});
+  renderState("orderRows", { loading: true });
   try {
     orderList = await getOrders();
     const id = new URLSearchParams(location.search).get("id");

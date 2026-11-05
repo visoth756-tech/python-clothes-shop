@@ -4,6 +4,7 @@ import enum
 class OrderStatus(enum.Enum):
 	PENDING = "PENDING"
 	CONFIRMED = "CONFIRMED"
+	FAILED = "FAILED"
 
 class PaymentStatus(enum.Enum):
 	PENDING = "PENDING"

@@ -70,7 +70,12 @@ export async function loginWithJWT(username, password) {
     body: JSON.stringify({username, password})
   });
 
-  if (!res.ok) throw new Error(await readError(res, "Invalid username or password"));
+  if (!res.ok) {
+    const error = new Error(await readError(res, "Invalid username or password"));
+    error.status = res.status;
+    error.retryAfter = Number(res.headers.get("Retry-After")) || 60;
+    throw error;
+  }
 
   const data = await res.json();
   saveTokens(data.access_token, data.refresh_token);

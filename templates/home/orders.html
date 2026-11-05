@@ -17,7 +17,7 @@
                     <span class="order-card__date">{{ order.date }}</span>
                 </div>
                 <span class="badge {{ 'badge--success' if order.get('paid') else 'badge--warning' }}">
-                    {{ 'Paid' if order.get('paid') else 'Pending' }}
+                    {{ 'Failed' if order.status == 'FAILED' else 'Paid' if order.get('paid') else 'Pending' }}
                 </span>
             </div>
             <div class="order-card__items">
@@ -32,6 +32,7 @@
                 {% endif %}
             </div>
             <div class="order-card__footer">
+                {% if order.warning %}<p role="alert">{{ order.warning }}</p>{% endif %}
                 <span class="order-card__total">{{ order.total }}</span>
                 <a href="{{ url_for('orders.order_detail', order_id=order.id) }}" class="btn btn--outline btn--sm">
                     View Details

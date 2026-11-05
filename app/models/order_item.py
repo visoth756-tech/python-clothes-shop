@@ -4,6 +4,7 @@ from app.extensions import db
 
 class OrderItem(BaseDocument):
 	__tablename__ = "order_items"
+	stock_snapshot = db.Column(db.Integer, nullable=True)
 	
 	order_id = db.Column(
 		db.String(32),

@@ -15,6 +15,7 @@ def serialize_order(order):
 		"username": order.username,
 		"totalAmount": float(order.total_amount) if order.total_amount is not None else None,
 		"status": order.status.value,
+		"warning": order.failure_reason,
 		"items": [
 			{
 				"id": item.id,
@@ -108,6 +109,7 @@ def create_order(user, data, method_value):
 			"qty": entry["qty"],
 			"price": price,
 			"subtotal": subtotal,
+			"stock_snapshot": product.qty,
 		})
 
 	order = Order(
@@ -123,9 +125,9 @@ def create_order(user, data, method_value):
 			product_name=entry["product_name"],
 			qty=entry["qty"],
 			price=entry["price"],
+			stock_snapshot=entry["stock_snapshot"],
 			subtotal=entry["subtotal"],
 		))
-		entry["product"].qty -= entry["qty"]
 
 	db.session.add(order)
 	db.session.flush()

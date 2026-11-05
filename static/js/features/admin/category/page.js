@@ -1,3 +1,4 @@
+import {setupPopup} from "../../../shared/popup.js";
 import {renderHeader} from "../../../components/layout/header.js";
 import {renderSidebar} from "../../../components/layout/sidebar.js";
 import {openDeleteModal, closeDeleteModal} from "../../../components/modal/confirmDelete.js";
@@ -21,6 +22,7 @@ const addCategoryBtn = document.getElementById('addCategoryBtn');
 const closeCategoryBtn = document.getElementById('closeCategoryBtn');
 
 function openCategoryModal(id = null) {
+  popup.clearError();
   editingCategoryId = id;
 
   if (id !== null) {
@@ -42,6 +44,7 @@ function openCategoryModal(id = null) {
 }
 
 function closeCategoryModal() {
+  popup.clearError();
   if (modal) modal.classList.add('hidden');
   if (form) form.reset();
   editingCategoryId = null;
@@ -114,7 +117,7 @@ async function saveCategory() {
   const name = nameInput ? nameInput.value.trim() : '';
 
   if (!name) {
-    window.toastWarning(MSG.warning.emptyName);
+    popup.showError(MSG.warning.emptyName);
     return;
   }
 
@@ -132,7 +135,7 @@ async function saveCategory() {
     renderTable(categories);
   } catch (error) {
     console.error('Error saving category:', error);
-    window.toastError(error.message || MSG.error.saveFailed("category"));
+    popup.showError(error.message || MSG.error.saveFailed("category"));
   }
 }
 
@@ -191,6 +194,7 @@ async function initCategories() {
 
   try {
     categories = await categoryApi.listCategories();
+    productList = await getProducts();
     renderTable(categories);
   } catch (error) {
     console.error('Error loading categories:', error);
@@ -206,3 +210,5 @@ window.initCategories = initCategories;
 renderSidebar();
 renderHeader('categories');
 initCategories();
+
+const popup = setupPopup("categoryModal", () => closeCategoryModal());

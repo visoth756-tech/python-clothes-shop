@@ -1,22 +1,23 @@
-import {escapeHtml} from "../../../shared/html.js";
-import {renderHeader} from "../../../components/layout/header.js";
-import {renderSidebar} from "../../../components/layout/sidebar.js";
-import {openDeleteModal, closeDeleteModal} from "../../../components/modal/confirmDelete.js";
-import {MSG} from "../../../shared/messages.js";
-import {renderState} from "../../../shared/states.js";
-import {formatCapitalLetter, formatMoney} from "../../../shared/format.js";
-import {getStockStatusBadge} from "./stockBadge.js";
-import {listCategories} from "../category/api.js";
-import {getProducts, createProduct, updateProduct, deleteProduct} from "./api.js";
+import { setupPopup } from "../../../shared/popup.js";
+import { escapeHtml } from "../../../shared/html.js";
+import { renderHeader } from "../../../components/layout/header.js";
+import { renderSidebar } from "../../../components/layout/sidebar.js";
+import { openDeleteModal, closeDeleteModal } from "../../../components/modal/confirmDelete.js";
+import { MSG } from "../../../shared/messages.js";
+import { renderState } from "../../../shared/states.js";
+import { formatCapitalLetter, formatMoney } from "../../../shared/format.js";
+import { getStockStatusBadge } from "./stockBadge.js";
+import { listCategories } from "../category/api.js";
+import { getProducts, createProduct, updateProduct, deleteProduct } from "./api.js";
 
 const PRODUCTS = {
   header: [
-    {name: "Product"},
-    {name: "Category"},
-    {name: "Price", class: "text-center"},
-    {name: "Qty", class: "text-center"},
-    {name: "Status", class: "text-center"},
-    {name: "Action", class: "text-center"}
+    { name: "Product" },
+    { name: "Category", class: "text-center" },
+    { name: "Price", class: "text-center" },
+    { name: "Qty", class: "text-center" },
+    { name: "Status", class: "text-center" },
+    { name: "Action", class: "text-center" }
   ]
 };
 
@@ -80,6 +81,7 @@ function populateCategoryOptions() {
 }
 
 function openModal(id = null) {
+  popup.clearError();
   editing = id;
   populateCategoryOptions();
   if (inputImage) inputImage.value = "";
@@ -134,6 +136,7 @@ function openModal(id = null) {
 }
 
 function closeModal() {
+  popup.clearError();
   if (modal) modal.classList.add('hidden');
   if (form) form.reset();
   if (imagePreview) {
@@ -162,7 +165,7 @@ if (inputImage) {
 }
 
 const table = document.getElementById('table');
-const grid = "grid-cols-[1.5fr_1.5fr_1fr_1fr_1fr_0.8fr]";
+const grid = "grid-cols-[2fr_1fr_1fr_1fr_1fr_0.8fr]";
 
 function renderHeaderTable() {
   if (!table) return;
@@ -225,7 +228,7 @@ function renderProducts() {
           </div>
         </div>
 
-        <div class="px-5 py-4 text-stone-500">
+        <div class="px-5 py-4 text-stone-500 text-center">
           ${escapeHtml(getCategoryName(categoryId))}
         </div>
 
@@ -269,13 +272,13 @@ async function handleSaveProduct() {
   const qty = qtyInput ? qtyInput.value : '0';
 
   if (!name || !categoryId) {
-    window.toastError('Please provide a name and category.');
+    popup.showError('Please provide a name and category.');
     return;
   }
 
   if (form && !form.reportValidity()) return;
   if (descriptionInput && description.length > descriptionInput.maxLength) {
-    window.toastError(`Description must be ${descriptionInput.maxLength} characters or less.`);
+    popup.showError(`Description must be ${descriptionInput.maxLength} characters or less.`);
     return;
   }
   const saveButton = form?.querySelector('button[type="submit"]');
@@ -307,7 +310,7 @@ async function handleSaveProduct() {
 
   } catch (error) {
     console.error('Error saving product:', error);
-    window.toastError(error.message || MSG.error.saveFailed("product"));
+    popup.showError(error.message || MSG.error.saveFailed("product"));
   } finally {
     if (saveButton) saveButton.disabled = false;
   }
@@ -356,7 +359,7 @@ window.closeModal = closeModal;
 window.closeDeleteModal = closeDeleteModal;
 
 async function initProducts() {
-  renderState("productRows", {loading: true});
+  renderState("productRows", { loading: true });
 
   try {
     categories = await listCategories();
@@ -377,3 +380,5 @@ renderSidebar();
 renderHeader("products");
 renderHeaderTable();
 initProducts();
+
+const popup = setupPopup("productModal", () => closeModal());
