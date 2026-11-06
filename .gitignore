@@ -38,9 +38,6 @@ env/
 *.log
 logs/
 
-# Generated Tailwind/CSS
-static/dist/
-
 # Node
 node_modules/
 
