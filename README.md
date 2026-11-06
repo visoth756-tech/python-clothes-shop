@@ -13,8 +13,7 @@ python -m venv .venv
 # Install Python dependencies
 pip install -r requirements.txt
 
-# Install Node dependencies
-npm install
+# Run Node dependencies
 npm run dev
 
 # Configure environment
