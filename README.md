@@ -8,7 +8,7 @@ cd python-clothes-shop
 python -m venv .venv
 
 # Activate (Windows)
-.venv\Scripts\activate
+source .venv/bin/activate
 
 # Install Python dependencies
 pip install -r requirements.txt

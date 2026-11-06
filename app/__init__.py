@@ -3,7 +3,6 @@ from math import ceil
 from threading import Lock
 from time import time
 from flask import Flask, g, jsonify, make_response, render_template, request, session
-from flask_cors import CORS
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -29,11 +28,11 @@ def create_app(config_class=DevelopmentConfig):
 	
 	app.config.from_object(config_class)
 	
-	CORS(
-		app,
-		origins=["http://127.0.0.1:5500", "http://localhost:5500"],
-		supports_credentials=True
-	)
+	# CORS(
+	# 	app,
+	# 	origins=["http://127.0.0.1:5500", "http://localhost:5500"],
+	# 	supports_credentials=True
+	# )
 	
 	app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=1440)
 	
