@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from app.extensions import db, migrate, limiter, csrf, jwt
-from app.config import DevelopmentConfig
+from app.config import ProductionConfig
 from app.models import RateLimitLog, User
 from app.routes import register_routes
 from app.routes.auth import jwt_bp
@@ -19,7 +19,7 @@ from app.services.auth import invalidate_login
 from app.routes.home.api_orders import api_order_bp
 from app.routes.home.api_payments import api_payment_bp
 
-def create_app(config_class=DevelopmentConfig):
+def create_app(config_class=ProductionConfig):
 	app = Flask(
 		__name__,
 		template_folder="../templates",

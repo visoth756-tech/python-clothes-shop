@@ -1,7 +1,6 @@
-from io import BytesIO
 from ...services import bakong
 from requests import RequestException
-from flask import Blueprint, g, jsonify, request, send_file
+from flask import Blueprint, g, jsonify, request, make_response
 
 from app.extensions import db
 
@@ -114,12 +113,15 @@ def payment_qr(payment_id):
             fail_order(payment.order, warning)
             db.session.commit()
             return jsonify(errors=warning), 409
-    if payment.method.value != "BAKONG" or payment.status.value != "PENDING" or not payment.qr_data or payment.qr_data.startswith("MOCK-KHQR:"):
-        return jsonify(errors="Payment QR is unavailable"), 409
+    
     try:
-        buffer = BytesIO(bakong.qr_png(payment.qr_data))
+	    png_data = bakong.qr_png(payment.qr_data)
     except (ValueError, TypeError):
-        return jsonify(errors="Payment QR could not be rendered."), 502
-    response = send_file(buffer, mimetype="image/png", max_age=0)
+	    return jsonify(errors="Payment QR could not be rendered."), 502
+    
+    response = make_response(png_data)
+    response.headers["Content-Type"] = "image/png"
+    response.headers["Content-Length"] = str(len(png_data))
     response.headers["Cache-Control"] = "no-store"
+    response.headers["Content-Disposition"] = 'inline; filename="khqr.png"'
     return response
