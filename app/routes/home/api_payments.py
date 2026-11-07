@@ -1,8 +1,10 @@
 from ...services import bakong
 from requests import RequestException
+from datetime import datetime, UTC
 from flask import Blueprint, g, jsonify, request, make_response
 
 from app.extensions import db
+from app.services.telegram import notify_order, notify_order_background
 
 from ...models import Order, Payment
 from ...services.payments import (
@@ -86,9 +88,15 @@ def create_payment_endpoint():
 		return jsonify(errors="Payment provider is unavailable. Please retry."), 502
 	if error:
 		db.session.commit()
+		if order.status.value == "FAILED":
+			notify_order(order, next(iter(order.payments), None))
 		return jsonify({"errors": error}), 400
 
 	db.session.commit()
+	if payment.method.value == "CASH":
+		notify_order_background(order, payment)
+	else:
+		notify_order(order, payment)
 
 	return jsonify(serialize_payment(payment)), 201 if created else 200
 
@@ -105,6 +113,11 @@ def payment_qr(payment_id):
     payment = Payment.query.get_or_404(payment_id)
     if not _can_view(payment):
         return jsonify(errors="Forbidden"), 403
+    if payment.method.value != "BAKONG" or payment.status.value != "PENDING":
+        return jsonify(errors="This payment has no active QR."), 409
+    expires_at = payment.token_expires_at
+    if expires_at and (expires_at.astimezone(UTC) if expires_at.tzinfo else expires_at.replace(tzinfo=UTC)) <= datetime.now(UTC):
+        return jsonify(errors="QR expired. Verify the original payment before paying again."), 409
     if payment.order.status.value == "FAILED":
         return jsonify(errors=payment.order.failure_reason or "Order failed"), 409
     if payment.order.status.value == "PENDING":
@@ -112,6 +125,7 @@ def payment_qr(payment_id):
         if warning:
             fail_order(payment.order, warning)
             db.session.commit()
+            notify_order(payment.order, payment)
             return jsonify(errors=warning), 409
     
     try:

@@ -19,6 +19,11 @@
 			<div class="order-detail__section">
 				<h3>Order Details</h3>
 				<p>{{ order.username }}</p>
+				{% if order.customer.first_name %}
+				<p>{{ order.customer.first_name }} {{ order.customer.last_name }}</p>
+				<p>{{ order.customer.email }} &middot; {{ order.customer.phone }}</p>
+				<p>{{ order.customer.delivery_address }}</p>
+				{% endif %}
 				<p>Status: {{ order.status }}</p>
 				{% if order.warning %}<p role="alert">{{ order.warning }}</p>{% endif %}
 				<p class="order-detail__date">Placed on {{ order.date }}</p>

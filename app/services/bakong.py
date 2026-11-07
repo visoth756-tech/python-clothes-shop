@@ -72,6 +72,8 @@ def check_status(token, transaction_id=None):
         return "PAID"
     if status in ("FAILED", "EXPIRED"):
         return "FAILED"
+    if status in ("CANCELLED", "CANCELED"):
+        return "CANCELLED"
     if status in ("UNPAID", "PENDING", "SCANNED"):
         return "PENDING"
     raise ValueError("Unexpected payment provider status.")

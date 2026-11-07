@@ -1,0 +1,12 @@
+{% extends "home/base.html" %}
+{% block title %}Order Confirmed - ThreadShop{% endblock %}
+{% block content %}
+<div class="container container--sm">
+  <div class="page-header"><h1>Order confirmed</h1><p>Order #{{ order.id }}</p></div>
+  <p role="status">Payment: PAID. Your order is confirmed.</p>
+  {% set items = order['items'] %}{% set total = order.total %}
+  {% include "home/components/order_summary.html" %}
+  <a class="btn btn--primary" href="{{ url_for('orders.order_detail', order_id=order.id) }}">View Order</a>
+  <a class="btn btn--outline" href="{{ url_for('products.products_page') }}">Continue Shopping</a>
+</div>
+{% endblock %}

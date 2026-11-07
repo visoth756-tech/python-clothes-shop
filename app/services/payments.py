@@ -5,6 +5,7 @@ from app.models import Order, Payment, Product
 from app.models.enums import OrderStatus, PaymentMethod, PaymentStatus
 
 from . import bakong
+from .telegram import notify_order
 
 
 def parse_method(value):
@@ -143,9 +144,16 @@ def create_payment(order, user_id, method):
 		method=method
 	).first()
 
-	if existing and existing.status != PaymentStatus.FAILED:
-		if existing.status == PaymentStatus.PENDING and method == PaymentMethod.BAKONG:
-			refresh_qr(existing)
+	if existing:
+		if method == PaymentMethod.CASH and order.status == OrderStatus.PENDING:
+			if not confirm_order(order):
+				return None, order.failure_reason, False
+			existing.status = PaymentStatus.PAID
+			existing.paid_at = datetime.now(UTC)
+		# Keep the same provider reference across duplicate submissions and retries.
+		# Rotating the QR loses the ability to verify a delayed payment on the old QR.
+		if existing.status in (PaymentStatus.FAILED, PaymentStatus.CANCELLED) and order.status == OrderStatus.PENDING:
+			existing.status = PaymentStatus.PENDING
 		return existing, None, False
 	if order.status != OrderStatus.PENDING:
 		return None, "This order is already confirmed.", False
@@ -173,14 +181,11 @@ def create_payment(order, user_id, method):
 
 def check_payment_status(payment):
 	"""Refresh a pending Bakong payment against the provider. Returns the status."""
-	if payment.method != PaymentMethod.BAKONG or payment.status != PaymentStatus.PENDING:
+	if payment.method != PaymentMethod.BAKONG or payment.status == PaymentStatus.PAID:
 		return payment.status.value
 	db.session.refresh(payment.order, with_for_update=True)
 	warning = (payment.order.failure_reason if payment.order.status == OrderStatus.FAILED
 		else snapshot_warning(payment.order) if payment.order.status == OrderStatus.PENDING else "")
-
-	expires_at = _as_utc(payment.token_expires_at)
-
 
 	status = bakong.check_status(payment.token, payment.transaction_id)
 
@@ -195,11 +200,12 @@ def check_payment_status(payment):
 	elif warning:
 		fail_order(payment.order, warning)
 		db.session.commit()
-	elif expires_at is not None and expires_at <= datetime.now(UTC) and status != "FAILED":
-		refresh_qr(payment)
+	elif status in ("FAILED", "CANCELLED"):
+		payment.status = PaymentStatus(status)
 		db.session.commit()
-	elif status == "FAILED":
-		payment.status = PaymentStatus.FAILED
+	elif payment.status != PaymentStatus.PENDING:
+		payment.status = PaymentStatus.PENDING
 		db.session.commit()
 
+	notify_order(payment.order, payment)
 	return payment.status.value

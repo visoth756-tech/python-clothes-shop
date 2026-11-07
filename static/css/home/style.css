@@ -312,6 +312,18 @@ h3 { font-size: 1.1rem; font-weight: 600; }
 /* ── Checkout ── */
 .checkout-layout { display: grid; grid-template-columns: 1fr 380px; gap: 40px; align-items: start; }
 .checkout-form { display: flex; flex-direction: column; gap: 32px; }
+.payment-methods { border: 0; padding: 0; margin: 0; min-width: 0; }
+.payment-methods legend { font-weight: 600; margin-bottom: 16px; }
+.payment-methods__options { display: grid; gap: 12px; }
+.payment-method { display: flex; align-items: center; gap: 14px; padding: 18px; border: 1px solid var(--color-border); border-radius: 12px; cursor: pointer; }
+.payment-method:hover { background: #faf9f6; }
+.payment-method:has(input:checked) { border-color: var(--color-primary, #292524); background: #f5f3ef; }
+.payment-method:has(input:focus-visible) { outline: 2px solid var(--color-primary, #292524); outline-offset: 3px; }
+.payment-method input { flex-shrink: 0; accent-color: var(--color-primary, #292524); }
+.payment-method__icon { font-size: 24px; width: 32px; text-align: center; flex-shrink: 0; }
+.payment-method__copy { display: grid; gap: 5px; min-width: 0; }
+.payment-method__copy > span { font-size: 14px; color: var(--color-text-muted, #57534e); }
+.payment-method__badge { display: inline-block; margin-left: 6px; padding: 3px 7px; border-radius: 6px; background: #e7e5e4; color: #57534e; font-size: 11px; font-weight: 500; vertical-align: middle; }
 .form-section { display: flex; flex-direction: column; gap: 16px; }
 .form-section h3 { padding-bottom: 12px; border-bottom: 1px solid var(--color-border); }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -395,6 +407,7 @@ h3 { font-size: 1.1rem; font-weight: 600; }
 }
 .flash--success { background: #dcfce7; color: #166534; }
 .flash--danger  { background: #fee2e2; color: #991b1b; }
+.checkout-error { background: #fee2e2; color: #991b1b; padding: 1rem; margin-bottom: 1rem; border: 1px solid #dc2626; border-radius: 8px; }
 .flash--warning { background: #fef9c3; color: #92400e; }
 .flash__close { background: none; border: none; cursor: pointer; font-size: 18px; opacity: 0.6; }
 

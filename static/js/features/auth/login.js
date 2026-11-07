@@ -44,7 +44,7 @@ function updateCooldown() {
 }
 
 updateCooldown();
-setInterval(updateCooldown, 1000);
+setInterval(updateCooldown, 500);
 
 function showError(message) {
   if (formErrorText) formErrorText.textContent = message;

@@ -24,6 +24,7 @@ env/
 
 
 # Local databases and SQLite sidecar files
+instance/backups/
 *.db-journal
 *.db-wal
 *.db-shm
@@ -48,3 +49,5 @@ node_modules/
 # OS
 .DS_Store
 Thumbs.db
+
+tests/

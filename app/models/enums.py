@@ -10,6 +10,7 @@ class PaymentStatus(enum.Enum):
 	PENDING = "PENDING"
 	PAID = "PAID"
 	FAILED = "FAILED"
+	CANCELLED = "CANCELLED"
 
 
 class PaymentMethod(enum.Enum):

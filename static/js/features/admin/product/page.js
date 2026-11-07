@@ -13,6 +13,7 @@ import { getProducts, createProduct, updateProduct, deleteProduct } from "./api.
 const PRODUCTS = {
   header: [
     { name: "Product" },
+    { name: "Description" },
     { name: "Category", class: "text-center" },
     { name: "Price", class: "text-center" },
     { name: "Qty", class: "text-center" },
@@ -183,14 +184,14 @@ if (inputImage) {
 }
 
 const table = document.getElementById('table');
-const grid = "grid-cols-[2fr_1fr_1fr_1fr_1fr_0.8fr]";
+const grid = "minmax(0, 1.1fr) minmax(0, 1.5fr) repeat(4, minmax(0, 0.5fr)) minmax(0, 0.8fr)";
 
 function renderHeaderTable() {
   if (!table) return;
 
   table.innerHTML = `
     <div class="bg-white border border-stone-200 rounded-lg overflow-hidden">
-      <div class="grid ${grid} bg-stone-50 border-b border-stone-200">
+      <div class="grid bg-stone-50 border-b border-stone-200" style="grid-template-columns: ${grid}">
         ${PRODUCTS.header.map(header => `
           <div class="px-5 py-3 text-xs font-bold font-mono uppercase tracking-wide ${header.class ?? ''}">
             ${header.name}
@@ -229,7 +230,7 @@ function renderProducts() {
     const categoryId = product.category_id ?? product.categoryId;
 
     return `
-      <div class="grid ${grid} bg-white border-b border-stone-100 hover:bg-stone-50 items-center">
+      <div class="grid bg-white border-b border-stone-100 hover:bg-stone-50 items-center" style="grid-template-columns: ${grid}">
         <div class="px-5 py-4 font-medium flex items-center gap-3">
           ${product.image ? `
             <img src="${productThumbSrc(product.image)}"
@@ -240,10 +241,13 @@ function renderProducts() {
               <i class="fa-solid fa-box text-sm"></i>
             </div>
           `}
-          <div class="min-w-0">
+          <div class="min-w-0 truncate">
             <span>${escapeHtml(product.name)}</span>
-            <p class="text-xs text-stone-500 whitespace-pre-wrap break-words mt-1">${escapeHtml(product.description || 'No description')}</p>
           </div>
+        </div>
+
+        <div class="px-5 py-4 text-stone-500 truncate" title="${escapeHtml(product.description || 'No description')}">
+          ${escapeHtml(product.description || 'No description')}
         </div>
 
         <div class="px-5 py-4 text-stone-500 text-center">

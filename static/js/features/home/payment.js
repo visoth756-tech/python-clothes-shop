@@ -1,7 +1,7 @@
 import {apiFetch} from "../../shared/api.js";
 const payments = JSON.parse(document.getElementById("paymentData").textContent);
 const orderId = JSON.parse(document.getElementById("orderData").textContent);
-let payment = payments.find(p => p.status === "PAID") || payments.find(p => p.status === "PENDING") || payments[payments.length - 1];
+let payment = payments.find(p => p.status === "PAID") || payments.find(p => p.method === "BAKONG") || payments.find(p => p.status === "PENDING") || payments[payments.length - 1];
 const status = document.getElementById("paymentStatus");
 const error = document.getElementById("paymentError");
 const qr = document.getElementById("paymentQr");
@@ -9,6 +9,7 @@ const check = document.getElementById("checkPayment");
 const retry = document.getElementById("retryPayment");
 const success = document.getElementById("paymentSuccess");
 const successMessage = document.getElementById("paymentSuccessMessage");
+const methodForm = document.getElementById("paymentMethodForm");
 let timer;
 let busy = false;
 function render() {
@@ -18,7 +19,19 @@ function render() {
   retry.hidden = true;
   const failedOrder = payment?.orderStatus === "FAILED";
   success.hidden = !payment || payment.status !== "PAID" || failedOrder;
-  if (!payment) { status.textContent = "No payment found for this order."; return; }
+  if (methodForm) {
+    const pendingCash = payment?.method === "CASH" && payment.status === "PENDING" && !failedOrder;
+    methodForm.hidden = Boolean(payment) && !pendingCash;
+    if (pendingCash) methodForm.elements.payment_method.value = "CASH";
+  }
+  if (!payment) {
+    status.textContent = methodForm ? "Select a payment method to continue." : "Order requires review. See the details below.";
+    return;
+  }
+  if (payment.status === "PAID" && payment.orderStatus === "CONFIRMED") {
+    location.replace(`/orders/${encodeURIComponent(orderId)}/confirmation`);
+    return;
+  }
   status.textContent = `${payment.method}: ${payment.status}`;
   if (failedOrder) status.textContent += ' — Order: FAILED';
   error.textContent = payment.warning || '';
@@ -28,13 +41,14 @@ function render() {
       : "Bakong payment received. Your order is confirmed.";
   }
   const pending = !failedOrder && payment.method === "BAKONG" && payment.status === "PENDING";
+  const expired = payment.tokenExpiresAt && new Date(payment.tokenExpiresAt).getTime() <= Date.now();
   const mock = payment.qrData?.startsWith("MOCK-KHQR:");
-  qr.hidden = !pending || !payment.qrData || mock;
+  qr.hidden = !pending || !payment.qrData || mock || expired;
   if (!qr.hidden) qr.src = `/api/payments/${encodeURIComponent(payment.id)}/qr?v=${encodeURIComponent(payment.tokenExpiresAt || "")}`;
   check.hidden = !pending;
-  retry.hidden = failedOrder || payment.status !== "FAILED" || payment.method !== "BAKONG";
+  retry.hidden = failedOrder || !["FAILED", "CANCELLED"].includes(payment.status) || payment.method !== "BAKONG";
   const expiry = document.getElementById("paymentExpiry");
-  expiry.textContent = mock ? "Test payment: a payable QR is unavailable." : pending && payment.tokenExpiresAt ? `QR expires: ${new Date(payment.tokenExpiresAt).toLocaleString()}` : "";
+  expiry.textContent = mock ? "Test payment: a payable QR is unavailable." : pending && expired ? "QR expired. Check Payment to verify the original payment, or contact support before paying again." : pending && payment.tokenExpiresAt ? `QR expires: ${new Date(payment.tokenExpiresAt).toLocaleString()}` : "";
   if (pending && !mock) timer = setTimeout(refresh, 5000);
 }
 async function refresh() {
@@ -49,14 +63,26 @@ async function refresh() {
   } finally { busy = false; check.disabled = false; }
 }
 check.addEventListener("click", refresh);
-retry.addEventListener("click", async () => {
+async function startPayment(method) {
   if (busy) return;
   busy = true; retry.disabled = true; error.textContent = "";
   try {
-    payment = await apiFetch("/api/payments", {method: "POST", json: {order_id: orderId, payment_method: "BAKONG"}});
+    payment = await apiFetch("/api/payments", {method: "POST", json: {order_id: orderId, payment_method: method}});
     render();
   } catch (err) { error.textContent = err.message; }
-  finally { busy = false; retry.disabled = false; }
+  finally {
+    busy = false;
+    retry.disabled = false;
+    const button = methodForm?.querySelector('button[type="submit"]');
+    if (button) button.disabled = false;
+  }
+}
+retry.addEventListener("click", () => startPayment("BAKONG"));
+methodForm?.addEventListener("submit", event => {
+  event.preventDefault();
+  if (busy || !methodForm.reportValidity()) return;
+  methodForm.querySelector('button[type="submit"]').disabled = true;
+  startPayment(new FormData(methodForm).get("payment_method"));
 });
 qr.addEventListener("error", () => { error.textContent = "QR could not be loaded. Check Payment to retry."; });
 window.addEventListener("pagehide", () => clearTimeout(timer));

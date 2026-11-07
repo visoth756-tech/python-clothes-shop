@@ -16,7 +16,27 @@
       <p id="paymentSuccessMessage">Your order is confirmed.</p>
     </div>
     <h3>Payment Details</h3>
-    <p id="paymentStatus" role="status" aria-live="polite">{{ "PAID - Your order is confirmed." if order.paid else "Loading payment..." }}</p>
+    {% if order.status == 'PENDING' %}
+    <form id="paymentMethodForm" class="checkout-form">
+      <fieldset id="paymentMethods" class="payment-methods">
+        <legend>Choose how to pay</legend>
+        <div class="payment-methods__options">
+          <label class="payment-method">
+            <input type="radio" name="payment_method" value="BAKONG" required checked>
+            <span class="payment-method__icon" aria-hidden="true"><i class="fa-solid fa-qrcode"></i></span>
+            <span class="payment-method__copy"><strong>Bakong KHQR</strong><span>Scan the QR code with your banking app.</span></span>
+          </label>
+          <label class="payment-method">
+            <input type="radio" name="payment_method" value="CASH" required>
+            <span class="payment-method__icon" aria-hidden="true"><i class="fa-solid fa-money-bill-wave"></i></span>
+            <span class="payment-method__copy"><strong>Cash <span class="payment-method__badge">Test payment</span></strong><span>Confirm instantly. No real money is charged.</span></span>
+          </label>
+        </div>
+      </fieldset>
+      <button type="submit" class="btn btn--primary">Continue to payment <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+    </form>
+    {% endif %}
+    <p id="paymentStatus" role="status" aria-live="polite">{{ "PAID - Your order is confirmed." if order.paid and order.status == 'CONFIRMED' else "Order requires review." if order.status == 'FAILED' else "Select a payment method." }}</p>
     <p id="paymentError" role="alert">{{ order.warning or '' }}</p>
     <img id="paymentQr" alt="Scan with your banking app to pay using Bakong" width="280" height="280" hidden>
     <p id="paymentExpiry"></p>

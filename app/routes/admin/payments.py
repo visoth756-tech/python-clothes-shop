@@ -2,6 +2,7 @@ from flask import render_template, request, jsonify
 
 from app.extensions import db
 from app.models import Order, Payment
+from app.services.telegram import notify_order
 
 from . import admin_bp, admin_payment_bp
 from ..auth.decorators import admin_required
@@ -59,5 +60,6 @@ def api_create_payment():
 		return jsonify({"errors": error}), 400
 
 	db.session.commit()
+	notify_order(order, payment)
 
 	return jsonify(serialize_payment(payment)), 201 if created else 200

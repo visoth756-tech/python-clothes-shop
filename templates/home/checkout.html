@@ -3,16 +3,28 @@
 {% block extra_js %}<script src="{{ url_for('static', filename='js/features/home/checkout.js') }}"></script>{% endblock %}
 {% block content %}
 <div class="container container--sm">
-  <div class="page-header"><h1>Checkout</h1><p>Review your order and choose a payment method.</p></div>
+  <div class="page-header"><h1>Checkout</h1><p>Review your order and enter your delivery details.</p></div>
+  {% if error %}<div id="checkoutError" class="checkout-error" role="alert" tabindex="-1"><strong>Checkout could not continue.</strong><p>{{ error }}</p></div>{% endif %}
   {% include "home/components/order_summary.html" %}
   <form action="{{ url_for('checkout.checkout_submit') }}" method="POST" class="checkout-form" id="checkoutForm">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <div class="form-section"><h3>Payment Method</h3>
-      <label><input type="radio" name="payment_method" value="CASH" required checked> Cash (pay instantly for testing)</label>
-      <label><input type="radio" name="payment_method" value="BAKONG" required> Bakong KHQR</label>
+    <input type="hidden" name="checkout_key" value="{{ checkout_key }}">
+    <div class="form-section"><h3>Customer Information</h3>
+      {% for name, label, kind, maximum, autocomplete in [
+        ('first_name', 'First Name', 'text', 100, 'given-name'),
+        ('last_name', 'Last Name', 'text', 100, 'family-name'),
+        ('email', 'Email Address', 'email', 254, 'email'),
+        ('phone', 'Phone Number', 'tel', 32, 'tel')] %}
+      <div class="form-group"><label for="{{ name }}">{{ label }}</label>
+        <input class="input" id="{{ name }}" name="{{ name }}" type="{{ kind }}" maxlength="{{ maximum }}" autocomplete="{{ autocomplete }}" value="{{ values.get(name, '') }}" required>
+      </div>
+      {% endfor %}
+      <div class="form-group"><label for="delivery_address">Delivery Address</label>
+        <textarea class="input" id="delivery_address" name="delivery_address" maxlength="1000" rows="3" autocomplete="street-address" required>{{ values.get('delivery_address', '') }}</textarea>
+      </div>
     </div>
     <p role="status" id="checkoutStatus"></p>
-    <button type="submit" class="btn btn--primary btn--lg">Place Order</button>
+    <button type="submit" class="btn btn--primary btn--lg">Continue to Payment</button>
     <a href="{{ url_for('cart.cart_page') }}" class="btn btn--outline">Back to Cart</a>
   </form>
 </div>

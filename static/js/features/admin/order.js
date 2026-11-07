@@ -42,7 +42,6 @@ function renderTableHeader() {
   if (!table) return;
 
   table.innerHTML = `
-    <div class="flex justify-end mb-3"><button type="button" id="refreshRecords" class="px-4 py-2 border border-stone-300 rounded-md">Refresh</button></div>
     <div class="bg-white border border-stone-200 rounded-lg overflow-hidden">
       <div class="grid ${grid} bg-stone-50 border-b border-stone-200">
         ${ORDERS.header.map(header => `
@@ -147,7 +146,6 @@ async function initOrders() {
 renderSidebar();
 renderHeader("orders");
 renderTableHeader();
-document.getElementById("refreshRecords").addEventListener("click", initOrders);
 initOrders();
 
 function showLoadError(error) {

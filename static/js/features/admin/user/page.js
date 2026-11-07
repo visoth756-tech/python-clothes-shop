@@ -15,7 +15,7 @@ const USERS = {
     {name: "Role", class: "text-center"},
     {name: "Status", class: "text-center"},
     {name: "Updated At", class: "text-center"},
-    {name: "Action", class: "text-right"}
+    {name: "Action", class: "text-center"}
   ]
 };
 
