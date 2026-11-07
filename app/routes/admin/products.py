@@ -193,7 +193,12 @@ def update_product(product_id):
 		except ValueError as e:
 			return jsonify({"errors": str(e)}), 400
 	
-	if not request.files.get("image") and data.get("remove_image") == "1":
+	elif (
+		"image" in request.files
+		or ("image" in data and data["image"].strip().lower() in ("", "null"))
+		or data.get("remove_image") == "1"
+	):
+		delete_product_image(product.image)
 		product.image = None
 
 	product.name = name
