@@ -1,4 +1,4 @@
-from flask import request, jsonify, render_template, g
+from flask import request, jsonify, render_template, g, session
 from werkzeug.security import generate_password_hash
 
 from app.extensions import db
@@ -137,7 +137,11 @@ def update_user(user_id):
    user.image = None
 
   db.session.commit()
-  return jsonify(serialize_user(user)), 200
+  result = serialize_user(user)
+  if result["is_current_user"]:
+   session.clear()
+   result["redirect"] = "/auth/login?updated=1"
+  return jsonify(result), 200
 
 
 @admin_user_bp.route("/<string:user_id>", methods=["DELETE"])

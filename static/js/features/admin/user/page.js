@@ -6,6 +6,7 @@ import {MSG} from "../../../shared/messages.js";
 import {renderState} from "../../../shared/states.js";
 import {formatCapitalLetter, formatDate} from "../../../shared/format.js";
 import {getUsers, createUser, updateUser, deleteUser} from "./api.js";
+import {clearTokens} from "../../../shared/tokens.js";
 
 const USERS = {
   header: [
@@ -275,6 +276,14 @@ if (form) {
     try {
       if (editing) {
         await updateUser(editing, formData);
+        if (isCurrentUser(editedUser)) {
+          try {
+            clearTokens();
+          } finally {
+            location.replace("/auth/login?updated=1");
+          }
+          return;
+        }
         window.toastSuccess(MSG.success.userUpdated);
       } else {
         if (!password || !password.value) {
