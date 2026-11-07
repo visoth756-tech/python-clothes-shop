@@ -67,6 +67,8 @@ def profile():
             user.password = generate_password_hash(password)
         if new_image:
             user.image = new_image
+        elif request.form.get("remove_image") == "1":
+            user.image = None
         invalidate_login(user)
         db.session.commit()
     except ValueError as exc:

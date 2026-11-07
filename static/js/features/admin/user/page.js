@@ -20,6 +20,7 @@ const USERS = {
 
 let userList = [];
 let editing = null;
+let removeImageRequested = false;
 
 function isCurrentUser(user) {
   return Boolean(user?.is_current_user) || (
@@ -41,6 +42,16 @@ const inputImage = document.getElementById("inputImage");
 const imagePreview = document.getElementById("imagePreview");
 const imagePlaceholder = document.getElementById("imagePlaceholder");
 const replaceImage = document.getElementById("replaceImage");
+const removeImage = document.getElementById("removeImage");
+removeImage.addEventListener("click", () => {
+  removeImageRequested = true;
+  inputImage.value = "";
+  imagePreview.src = "";
+  imagePreview.classList.add("hidden");
+  imagePlaceholder.classList.remove("hidden");
+  replaceImage.classList.add("hidden");
+  removeImage.classList.add("hidden");
+});
 
 const DEFAULT_AVATAR = window.DEFAULT_AVATAR_URL;
 const USER_IMAGE_BASE = window.USER_IMAGE_BASE;
@@ -57,8 +68,10 @@ function userFullImageSrc(image) {
 function openModal(id = null) {
   popup.clearError();
   editing = id;
+  removeImageRequested = false;
   inputImage.value = "";
-  if (status) status.disabled = false;
+  if (status) { status.disabled = false; status.parentElement.hidden = false; }
+  if (role) { role.disabled = false; role.parentElement.hidden = false; }
 
   if (id !== null) {
     const user = userList.find(u => String(u.id) === String(id));
@@ -73,8 +86,9 @@ function openModal(id = null) {
     if (username) username.value = user.username ?? "";
     if (password) password.value = "";
     if (role) role.value = user.role ?? "USER";
+    if (role) { role.disabled = isCurrentUser(user); role.parentElement.hidden = isCurrentUser(user); }
     if (status) status.value = user.status ?? "ACTIVE";
-    if (status) status.disabled = isCurrentUser(user);
+    if (status) { status.disabled = isCurrentUser(user); status.parentElement.hidden = isCurrentUser(user); }
     if (status) status.title = isCurrentUser(user) ? "You cannot change your own account status." : "";
 
     if (user.image) {
@@ -82,11 +96,13 @@ function openModal(id = null) {
       imagePreview.classList.remove("hidden");
       imagePlaceholder.classList.add("hidden");
       replaceImage.classList.remove("hidden");
+      removeImage.classList.remove("hidden");
     } else {
       imagePreview.src = "";
       imagePreview.classList.add("hidden");
       imagePlaceholder.classList.remove("hidden");
       replaceImage.classList.add("hidden");
+      removeImage.classList.add("hidden");
     }
 
   } else {
@@ -97,6 +113,7 @@ function openModal(id = null) {
     imagePreview.classList.add("hidden");
     imagePlaceholder.classList.remove("hidden");
     replaceImage.classList.add("hidden");
+    removeImage.classList.add("hidden");
   }
 
   if (modal) modal.classList.remove("hidden");
@@ -111,6 +128,7 @@ function closeModal() {
 
 inputImage.addEventListener("change", () => {
   const file = inputImage.files[0];
+  if (file) removeImageRequested = false;
 
   if (!file) return;
 
@@ -119,6 +137,7 @@ inputImage.addEventListener("change", () => {
   imagePreview.classList.remove("hidden");
   imagePlaceholder.classList.add("hidden");
   replaceImage.classList.remove("hidden");
+  removeImage.classList.remove("hidden");
 });
 
 function renderStatusBadge(value) {
@@ -240,9 +259,10 @@ if (form) {
     }
 
     const formData = new FormData();
+    if (editing !== null && removeImageRequested) formData.append("remove_image", "1");
     formData.append("username", username ? username.value.trim() : "");
-    formData.append("role", role ? role.value : "USER");
-    formData.append("status", status ? status.value : "ACTIVE");
+    if (!isCurrentUser(editedUser)) formData.append("role", role ? role.value : "USER");
+    if (!isCurrentUser(editedUser)) formData.append("status", status ? status.value : "ACTIVE");
 
     if (password && password.value) {
       formData.append("password", password.value);

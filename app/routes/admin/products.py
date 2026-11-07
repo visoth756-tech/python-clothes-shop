@@ -193,6 +193,9 @@ def update_product(product_id):
 		except ValueError as e:
 			return jsonify({"errors": str(e)}), 400
 	
+	if not request.files.get("image") and data.get("remove_image") == "1":
+		product.image = None
+
 	product.name = name
 	if "description" in data:
 		product.description = description

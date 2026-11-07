@@ -24,6 +24,7 @@ const PRODUCTS = {
 let product_list = [];
 let categories = [];
 let editing = null;
+let removeImageRequested = false;
 
 const modal = document.getElementById('productModal');
 const form = document.getElementById('productForm');
@@ -45,6 +46,16 @@ const inputImage = document.getElementById("inputImage");
 const imagePreview = document.getElementById("imagePreview");
 const imagePlaceholder = document.getElementById("imagePlaceholder");
 const replaceImage = document.getElementById("replaceImage");
+const removeImage = document.getElementById("removeImage");
+removeImage.addEventListener("click", () => {
+  removeImageRequested = true;
+  inputImage.value = "";
+  imagePreview.src = "";
+  imagePreview.classList.add("hidden");
+  imagePlaceholder.classList.remove("hidden");
+  replaceImage.classList.add("hidden");
+  removeImage.classList.add("hidden");
+});
 
 const PRODUCT_IMAGE_BASE = window.PRODUCT_IMAGE_BASE;
 const PRODUCT_IMAGE_THUMB_BASE = window.PRODUCT_IMAGE_THUMB_BASE;
@@ -83,6 +94,7 @@ function populateCategoryOptions() {
 function openModal(id = null) {
   popup.clearError();
   editing = id;
+  removeImageRequested = false;
   populateCategoryOptions();
   if (inputImage) inputImage.value = "";
 
@@ -109,6 +121,7 @@ function openModal(id = null) {
       }
       if (imagePlaceholder) imagePlaceholder.classList.add("hidden");
       if (replaceImage) replaceImage.classList.remove("hidden");
+      removeImage.classList.remove("hidden");
     } else {
       if (imagePreview) {
         imagePreview.src = "";
@@ -116,6 +129,7 @@ function openModal(id = null) {
       }
       if (imagePlaceholder) imagePlaceholder.classList.remove("hidden");
       if (replaceImage) replaceImage.classList.add("hidden");
+      removeImage.classList.add("hidden");
     }
 
   } else {
@@ -129,6 +143,7 @@ function openModal(id = null) {
     }
     if (imagePlaceholder) imagePlaceholder.classList.remove("hidden");
     if (replaceImage) replaceImage.classList.add("hidden");
+    removeImage.classList.add("hidden");
   }
 
   updateDescriptionCount();
@@ -145,6 +160,7 @@ function closeModal() {
   }
   if (imagePlaceholder) imagePlaceholder.classList.remove("hidden");
   if (replaceImage) replaceImage.classList.add("hidden");
+  removeImage.classList.add("hidden");
   if (inputImage) inputImage.value = "";
   editing = null;
   updateDescriptionCount();
@@ -153,6 +169,7 @@ function closeModal() {
 if (inputImage) {
   inputImage.addEventListener("change", () => {
     const file = inputImage.files[0];
+    if (file) removeImageRequested = false;
     if (!file) return;
 
     if (imagePreview) {
@@ -161,6 +178,7 @@ if (inputImage) {
     }
     if (imagePlaceholder) imagePlaceholder.classList.add("hidden");
     if (replaceImage) replaceImage.classList.remove("hidden");
+    removeImage.classList.remove("hidden");
   });
 }
 
@@ -285,6 +303,7 @@ async function handleSaveProduct() {
   if (saveButton?.disabled) return;
   if (saveButton) saveButton.disabled = true;
   const formData = new FormData();
+  if (editing !== null && removeImageRequested) formData.append("remove_image", "1");
   formData.append("name", name);
   formData.append("description", description);
   formData.append("price", price);

@@ -12,6 +12,8 @@
       <img id="profilePreview" class="profile-preview" src="{{ url_for('static', filename='uploads/users/' ~ user.image) if user.image else url_for('static', filename='img/default-avatar.png') }}" alt="Your profile photo">
       <label for="profileImage">Profile image</label>
       <input id="profileImage" type="file" name="image" accept="image/png,image/jpeg,image/webp,image/gif">
+      <input id="removeProfileImage" type="hidden" name="remove_image" value="0">
+      <button id="removeProfileImageButton" type="button" class="btn btn--outline" data-default-avatar="{{ url_for('static', filename='img/default-avatar.png') }}" {% if not user.image %}hidden{% endif %}>Remove image</button>
       <p>PNG, JPG, WebP, or GIF. Maximum 5 MB.</p>
     </div>
     <div class="form-group"><label for="profileName">Name (used to sign in)</label><input class="input" id="profileName" name="username" value="{{ user.username }}" maxlength="255" autocomplete="username" required></div>

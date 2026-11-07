@@ -4,6 +4,16 @@ const form = document.getElementById("profileForm");
 const error = document.getElementById("profileError");
 const image = document.getElementById("profileImage");
 let previewUrl;
+const removeImage = document.getElementById("removeProfileImage");
+const removeButton = document.getElementById("removeProfileImageButton");
+removeButton.addEventListener("click", () => {
+  if (previewUrl) URL.revokeObjectURL(previewUrl);
+  previewUrl = null;
+  image.value = "";
+  removeImage.value = "1";
+  document.getElementById("profilePreview").src = removeButton.dataset.defaultAvatar;
+  removeButton.hidden = true;
+});
 function showProfileError(message) {
   error.textContent = message;
   error.focus({preventScroll: true});
@@ -19,6 +29,8 @@ image.addEventListener("change", () => {
     image.value = "";
     return;
   }
+  removeImage.value = "0";
+  removeButton.hidden = false;
   previewUrl = URL.createObjectURL(file);
   document.getElementById("profilePreview").src = previewUrl;
   error.textContent = "";

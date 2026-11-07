@@ -94,6 +94,11 @@ def update_user(user_id):
   data = request.form
 
   if str(user.id) == str(g.admin_user_id) and (
+   "role" in data and data["role"] != user.role.value
+  ):
+   return jsonify({"errors": "You cannot change your own account role."}), 403
+
+  if str(user.id) == str(g.admin_user_id) and (
    "status" in data and data["status"] != user.status.value
   ):
    return jsonify({"errors": "You cannot change your own account status."}), 403
@@ -127,6 +132,9 @@ def update_user(user_id):
     user.image = save_user_image(request.files.get("image"), old_image=user.image)
    except ValueError as e:
     return jsonify({"errors": str(e)}), 400
+
+  if not request.files.get("image") and data.get("remove_image") == "1":
+   user.image = None
 
   db.session.commit()
   return jsonify(serialize_user(user)), 200
